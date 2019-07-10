@@ -1,0 +1,119 @@
+{
+	"name": "colcon-helper",
+	"displayName": "colcon-helper",
+	"description": "Adds tasks that are specific to colcon workspaces",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.36.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "colcon.refreshEnvironment",
+				"title": "Refresh colcon environment"
+			}
+		],
+		"configuration": [{
+			"title": "colcon configuration",
+			"properties": {
+				"colcon.provideTasks": {
+					"type": "boolean",
+					"default": false,
+					"description": "Determine whether extension should provide colcon tasks for workspace or not."
+				},
+				"colcon.env": {
+					"type": "string",
+					"default": ".vscode/colcon.env",
+					"description": "Path to file where colcon environment variables are listed."
+				},
+				"colcon.globalSetup": {
+					"type": "string",
+					"default": "/opt/ros/dashing/setup.sh",
+					"description": "Path to setup.sh inside ROS."
+				},
+				"colcon.workspaceSetup": {
+					"type": "string",
+					"default": "install/setup.sh",
+					"description": "Path to file where colcon environment variables are listed."
+				},
+				"colcon.workspaceDir": {
+					"type": "string",
+					"description": "Folder, from which colcon commands are launched. ${workspaceFolder} substitution is not working for now."
+				},
+				"colcon.defaultEnvironment": {
+					"type": "object",
+					"properties": {
+						"key": "string",
+						"value": "string"
+					},
+					"default": ".",
+					"description": "Predefined environments"
+				},
+				"colcon.refreshOnStart": {
+					"type": "boolean",
+					"default": true,
+					"description": "Refresh colcon modules configuration on application start."
+				},
+				"colcon.refreshOnTasksOpened": {
+					"type": "boolean",
+					"default": false,
+					"description": "Refresh colcon modules configuration on tasks request."
+				},
+				"colcon.debugLog": {
+					"type": "boolean",
+					"default": false,
+					"description": "Print debug messages to extension log."
+				},
+				"colcon.buildArgs": {
+					"type": ["string"],
+					"default": ["--symlink-install"],
+					"description": "Arguments that are passed to colcon build command."
+				},
+				"colcon.testArgs": {
+					"type": ["string"],
+					"default": [],
+					"description": "Arguments that are passed to colcon test command."
+				},
+				"colcon.testResultArgs": {
+					"type": ["string"],
+					"default": ["--verbose"],
+					"description": "Arguments that are passed to colcon test-result command."
+				}
+			}
+		}],
+		"taskDefinitions": [
+			{
+				"type": "colcon",
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "Subcommand for colcon"
+					}
+				}
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"dotenv": "8.0.0",
+		"typescript": "^3.3.1",
+		"vscode": "^1.1.28",
+		"tslint": "^5.12.1",
+		"@types/node": "^10.12.21",
+		"@types/mocha": "^2.2.42",
+		"@types/dotenv": "^6.1.1"
+	}
+}
