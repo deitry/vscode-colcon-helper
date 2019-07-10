@@ -121,6 +121,21 @@
 					"items": "string",
 					"default": ["-r", "--verbose", "build", "install"],
 					"description": "Arguments that are passed to clean command."
+				},
+				"colcon.runCommand": {
+					"type": "string",
+					"default": "ros2",
+					"description": "Command that is used to launch project."
+				},
+				"colcon.runArgs": {
+					"type": "array",
+					"items": "string",
+					"default": ["launch"],
+					"description": "Arguments that are passed to run command."
+				},
+				"colcon.runFile": {
+					"type": "string",
+					"description": "File that is launched by run command"
 				}
 			}
 		}],

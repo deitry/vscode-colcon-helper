@@ -2,19 +2,19 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as dotenv from 'dotenv';
 import { Config } from './colcon_config';
-import { colcon_ns, colcon_exec } from './common';
+import { colcon_ns, colcon_exec, extName } from './common';
 import { config } from './extension';
 
 const buildCmd = 'build';
 const testCmd = 'test';
 const testResultCmd = 'test-result';
 
-let colconOptions: vscode.ShellExecutionOptions = {};
+let colconOptions: vscode.ProcessExecutionOptions = {};
 
 const taskPresentation: vscode.TaskPresentationOptions = {
     clear: true,
     panel: vscode.TaskPanelKind.Dedicated,
-    showReuseMessage: false,
+    showReuseMessage: true,
     focus: true,
     reveal: vscode.TaskRevealKind.Always,
     echo: true
@@ -26,15 +26,19 @@ export function getColconTasks() {
     config.log("Start to aquire colcon tasks")
 
     // 'Build' single colcon command
-    function makeTask(executable: string, task: string, args: string[]) {
+    function makeTask(
+        executable: string,
+        task: string,
+        args: string[],
+        group: vscode.TaskGroup | undefined = undefined) {
 
+        let localArgs = args;
         config.log("Making task: " + task);
-        config.log(executable + " " + args.join(' '));
+        config.log(executable + " " + localArgs.join(' '));
 
         let taskOptions = colconOptions;
-
         let newTask = new vscode.Task(
-            { type: colcon_ns, task: task },
+            { type: colcon_ns, task: task, group: group },
             vscode.TaskScope.Workspace,
             task,
             colcon_ns,
@@ -46,28 +50,34 @@ export function getColconTasks() {
         return newTask;
     }
 
-    function makeColconTask(task: string, args: string[]) {
-        return makeTask(colcon_exec, task, args);
+    function makeColconTask(task: string, args: string[], group: vscode.TaskGroup | undefined = undefined) {
+        return makeTask(colcon_exec, task, args, group);
     }
 
-
-    if (fs.existsSync(config.env)) {
-        let fullEnvPath = config.workspaceDir + "/" + config.env;
+    let fullEnvPath = config.workspaceDir + "/" + config.env;
+    if (fs.existsSync(fullEnvPath)) {
         // FIXME: check if config.env is already an absolute path
 
         config.log("Parse environment configuration in " + fullEnvPath);
         colconOptions.env = dotenv.parse(fs.readFileSync(fullEnvPath));
     }
     else {
-        config.log("Environment file does not exist.");
+        config.log("Environment file does not exist. Expected: " + fullEnvPath);
     }
 
     let taskList: vscode.Task[] = [];
-    taskList.push(makeColconTask('build', [buildCmd].concat(config.buildArgs)));
-    taskList.push(makeColconTask('test', [testCmd].concat(config.testArgs)));
+    taskList.push(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
+    taskList.push(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));
+    // TODO: test-result dependsOn test by default? Maybe an option
     taskList.push(makeColconTask('test-results', [testResultCmd].concat(config.testResultArgs)));
-    taskList.push(makeTask(config.cleanCommand, 'clean', config.cleanArgs));
+    taskList.push(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
 
+    if (config.runFile != "") {
+        taskList.push(makeTask(config.runCommand, 'run', config.runArgs.concat(config.runFile)));
+    } else {
+        // TODO: option whether notify about missing run file or not
+        // vscode.window.showWarningMessage(extName + ": Run file is undefined");
+    }
     config.log("Complete aquire colcon tasks")
     return taskList;
 }

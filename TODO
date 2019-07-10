@@ -15,5 +15,5 @@ Thoughts on future enhancements:
     - spinning wheel in status bar indicating that environment is updating right now
     - multiple colcon workspace include
     - update environment after clean/build
-    - groups for tasks (build/test)
-    - Run command
+    - path to colcon executable
+    - ${workspaceFolder} substitution

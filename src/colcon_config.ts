@@ -16,6 +16,9 @@ const testArgsProperty = "testArgs";
 const testResultArgsProperty = "testResultArgs";
 const cleanCommandProperty = "cleanCommand";
 const cleanArgsProperty = "cleanArgs";
+const runCommandProperty = "runCommand";
+const runArgsProperty = "runArgs";
+const runFileProperty = "runFile";
 const defaultEnvsProperty = "defaultEnvironment";
 
 enum OutputLevel {
@@ -48,9 +51,23 @@ export class Config {
     defaultEnvs: { [key: string]: string };
     cleanCommand: string;
     cleanArgs: string[];
+    runCommand: string;
+    runArgs: string[];
+    runFile: string;
 
     constructor() {
         let conf = vscode.workspace.getConfiguration(colcon_ns);
+
+        let updateIfNotExist = function(property: string, value: any) {
+            // TODO: ask if user wants to create this settings
+            let propertyConf = conf.inspect(property);
+            if (propertyConf != undefined
+                && propertyConf.globalValue == undefined
+                && propertyConf.workspaceValue == undefined
+                && propertyConf.workspaceFolderValue == undefined) {
+                    conf.update(property, value, vscode.ConfigurationTarget.Workspace);
+            }
+        };
 
         if (!conf)
             throw new Error("Missed colcon configuration");
@@ -98,22 +115,6 @@ export class Config {
         this.log("Current workspace dir: " + this.workspaceDir);
 
         if (this.provideTasks) {
-            if (!conf.has(globalSetupProperty)) {
-                conf.update(globalSetupProperty,
-                            this.globalSetup,
-                            vscode.ConfigurationTarget.Workspace);
-            }
-
-            let updateIfNotExist = function(property: string, value: any) {
-                let propertyConf = conf.inspect(property);
-                if (propertyConf != undefined
-                    && propertyConf.globalValue == undefined
-                    && propertyConf.workspaceValue == undefined
-                    && propertyConf.workspaceFolderValue == undefined) {
-                        conf.update(property, value, vscode.ConfigurationTarget.Workspace);
-                }
-            };
-
             updateIfNotExist(globalSetupProperty, this.globalSetup);
             updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
         }
@@ -127,6 +128,14 @@ export class Config {
         this.testResultArgs = conf.get(testResultArgsProperty, []);
         this.cleanCommand = conf.get(cleanCommandProperty, "");
         this.cleanArgs = conf.get(cleanArgsProperty, []);
+        this.cleanCommand = conf.get(cleanCommandProperty, "");
+        this.cleanArgs = conf.get(cleanArgsProperty, []);
+        this.runCommand = conf.get(runCommandProperty, "");
+        this.runArgs = conf.get(runArgsProperty, []);
+        this.runFile = conf.get(runFileProperty, "");
+        if (this.provideTasks) {
+            updateIfNotExist(runFileProperty, this.runFile);
+        }
         this.defaultEnvs = conf.get(defaultEnvsProperty, {});
     }
 
