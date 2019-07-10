@@ -6,8 +6,9 @@ Thoughts on future enhancements:
         - whitelist/blackelist for colcon packages
             build/test only and build/test except
         - command for create new Python/C++ package
-        - OutputChannel
         - Force set base configuration settings for workspace
 
     - Automatic detection if current workspace is colcon-workspace
     - Tests
+    - Separate info and debug output levels
+    - Activate extension on configuration changed

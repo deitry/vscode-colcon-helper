@@ -17,17 +17,16 @@ export function activate(context: vscode.ExtensionContext) {
 	config = new Config();
 
 	if (!config.provideTasks) {
-		console.log(extName + " extension will not search for colcon tasks due to provideTask configuration");
+		config.log(extName + " extension will not search for colcon tasks due to provideTask configuration");
 		return;
 	}
 
-	// FIXME: add extension name to all console.log() calls
-	if (config.debugLog) console.log(extName + " extension is about to launch");
+	config.log(extName + " extension is about to launch");
 
 	// FIXME: track addition or deletion of new colcon packages
 
 	if (config.refreshOnStart) {
-		if (config.debugLog) console.log("Refreshing environment on start")
+		config.log("Refreshing environment on start")
 
 		refreshEnvironment(config);
 	}
@@ -49,5 +48,5 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(taskProvider);
 	context.subscriptions.push(refreshCmdDisposable);
 
-	if (config.debugLog) console.log(extName + " extension is activated");
+	config.log(extName + " extension is activated");
 }

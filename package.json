@@ -66,10 +66,27 @@
 					"default": false,
 					"description": "Refresh colcon modules configuration on tasks request."
 				},
-				"colcon.debugLog": {
+				"colcon.outputLog": {
 					"type": "boolean",
 					"default": false,
-					"description": "Print debug messages to extension log."
+					"description": "Print debug messages to extension log. If false, outputLevel property is ignored."
+				},
+				"colcon.outputLevel": {
+					"type": "string",
+					"default": "error",
+					"enum": [
+						"info",
+						"warning",
+						"error",
+						"none"
+					],
+					"enumDescriptions": [
+						"All messages, including common information and debug messages",
+						"Warning and error messages",
+						"Only error messages",
+						"No output at all"
+					],
+					"description": "Select output level."
 				},
 				"colcon.buildArgs": {
 					"type": ["string"],
