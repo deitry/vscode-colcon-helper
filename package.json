@@ -1,6 +1,7 @@
 {
 	"name": "colcon-helper",
-	"displayName": "colcon-helper",
+	"displayName": "Colcon Helper",
+	"publisher": "deitry",
 	"description": "Adds tasks that are specific to colcon workspaces",
 	"version": "0.0.1",
 	"engines": {
