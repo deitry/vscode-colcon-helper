@@ -9,10 +9,16 @@ const buildCmd = 'build';
 const testCmd = 'test';
 const testResultCmd = 'test-result';
 
-let colconOptions: vscode.ShellExecutionOptions = {
-    shellArgs: ['-i', '-c'],
-    executable: "/usr/bin/zsh"
-}
+let colconOptions: vscode.ShellExecutionOptions = {};
+
+const taskPresentation: vscode.TaskPresentationOptions = {
+    clear: true,
+    panel: vscode.TaskPanelKind.Dedicated,
+    showReuseMessage: false,
+    focus: true,
+    reveal: vscode.TaskRevealKind.Always,
+    echo: true
+};
 
 // Get all possible colcon tasks
 export function getColconTasks() {
@@ -20,21 +26,30 @@ export function getColconTasks() {
     config.log("Start to aquire colcon tasks")
 
     // 'Build' single colcon command
-    function makeColconTask(task: string, args: string[]) {
+    function makeTask(executable: string, task: string, args: string[]) {
 
-        config.log("Making task: " + task)
+        config.log("Making task: " + task);
+        config.log(executable + " " + args.join(' '));
 
         let taskOptions = colconOptions;
 
-        return new vscode.Task(
+        let newTask = new vscode.Task(
             { type: colcon_ns, task: task },
             vscode.TaskScope.Workspace,
             task,
             colcon_ns,
-            new vscode.ProcessExecution(colcon_exec, args, taskOptions)
+            new vscode.ProcessExecution(executable, args, taskOptions),
             // TODO: problemMatcher
         );
+
+        newTask.presentationOptions = taskPresentation;
+        return newTask;
     }
+
+    function makeColconTask(task: string, args: string[]) {
+        return makeTask(colcon_exec, task, args);
+    }
+
 
     if (fs.existsSync(config.env)) {
         let fullEnvPath = config.workspaceDir + "/" + config.env;
@@ -47,10 +62,11 @@ export function getColconTasks() {
         config.log("Environment file does not exist.");
     }
 
-    let taskList = [];
+    let taskList: vscode.Task[] = [];
     taskList.push(makeColconTask('build', [buildCmd].concat(config.buildArgs)));
     taskList.push(makeColconTask('test', [testCmd].concat(config.testArgs)));
     taskList.push(makeColconTask('test-results', [testResultCmd].concat(config.testResultArgs)));
+    taskList.push(makeTask(config.cleanCommand, 'clean', config.cleanArgs));
 
     config.log("Complete aquire colcon tasks")
     return taskList;

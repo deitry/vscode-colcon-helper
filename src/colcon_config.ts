@@ -5,6 +5,7 @@ const envProperty = "env";
 const globalSetupProperty = "globalSetup";
 const workspaceSetupProperty = "workspaceSetup";
 const workspaceDirProperty = "workspaceDir";
+const provideTasksProperty = "provideTasks";
 const refreshOnStartProperty = "refreshOnStart";
 const refreshOnTasksOpenedProperty = "refreshOnTasksOpened";
 const refreshOnConfigurationChangedProperty = "refreshOnConfigurationChanged";
@@ -13,8 +14,9 @@ const outputLevelProperty = "outputLevel";
 const buildArgsProperty = "buildArgs";
 const testArgsProperty = "testArgs";
 const testResultArgsProperty = "testResultArgs";
+const cleanCommandProperty = "cleanCommand";
+const cleanArgsProperty = "cleanArgs";
 const defaultEnvsProperty = "defaultEnvironment";
-const provideTasksProperty = "provideTasks";
 
 enum OutputLevel {
     Info = 0,
@@ -44,6 +46,8 @@ export class Config {
     testArgs: string[];
     testResultArgs: string[];
     defaultEnvs: { [key: string]: string };
+    cleanCommand: string;
+    cleanArgs: string[];
 
     constructor() {
         let conf = vscode.workspace.getConfiguration(colcon_ns);
@@ -76,7 +80,7 @@ export class Config {
         this.workspaceDir = conf.get(workspaceDirProperty);
 
         if (this.workspaceDir == undefined || this.workspaceDir == "") {
-            if (this.debugLog) this.warn("No workspace direcory configuration provided");
+            this.warn("No workspace directory configuration provided");
 
             // try to find out where we are - sinse I don't know yet
             // how to resolve ${workspaceFolder} substitution
@@ -91,7 +95,28 @@ export class Config {
             this.workspaceDir = vscode.workspace.workspaceFolders[0].uri.path;
             // }
         }
-        if (this.debugLog) this.log("Current workspace dir: " + this.workspaceDir);
+        this.log("Current workspace dir: " + this.workspaceDir);
+
+        if (this.provideTasks) {
+            if (!conf.has(globalSetupProperty)) {
+                conf.update(globalSetupProperty,
+                            this.globalSetup,
+                            vscode.ConfigurationTarget.Workspace);
+            }
+
+            let updateIfNotExist = function(property: string, value: any) {
+                let propertyConf = conf.inspect(property);
+                if (propertyConf != undefined
+                    && propertyConf.globalValue == undefined
+                    && propertyConf.workspaceValue == undefined
+                    && propertyConf.workspaceFolderValue == undefined) {
+                        conf.update(property, value, vscode.ConfigurationTarget.Workspace);
+                }
+            };
+
+            updateIfNotExist(globalSetupProperty, this.globalSetup);
+            updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
+        }
 
         this.refreshOnStart = conf.get(refreshOnStartProperty, true);
         this.refreshOnTasksOpened = conf.get(refreshOnTasksOpenedProperty, false);
@@ -100,6 +125,8 @@ export class Config {
         this.buildArgs = conf.get(buildArgsProperty, []);
         this.testArgs = conf.get(testArgsProperty, []);
         this.testResultArgs = conf.get(testResultArgsProperty, []);
+        this.cleanCommand = conf.get(cleanCommandProperty, "");
+        this.cleanArgs = conf.get(cleanArgsProperty, []);
         this.defaultEnvs = conf.get(defaultEnvsProperty, {});
     }
 

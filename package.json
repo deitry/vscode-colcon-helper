@@ -31,7 +31,7 @@
 				"colcon.env": {
 					"type": "string",
 					"default": ".vscode/colcon.env",
-					"description": "Path to file where colcon environment variables are listed."
+					"description": "Path to file where colcon environment variables are listed. This file is auto-generated."
 				},
 				"colcon.globalSetup": {
 					"type": "string",
@@ -110,6 +110,17 @@
 					"items": "string",
 					"default": ["--verbose"],
 					"description": "Arguments that are passed to colcon test-result command."
+				},
+				"colcon.cleanCommand": {
+					"type": "string",
+					"default": "rm",
+					"description": "Command that is used to clean workspace."
+				},
+				"colcon.cleanArgs": {
+					"type": "array",
+					"items": "string",
+					"default": ["-r", "--verbose", "build", "install"],
+					"description": "Arguments that are passed to clean command."
 				}
 			}
 		}],

@@ -5,9 +5,11 @@ import * as path from 'path';
 
 import { Config } from './colcon_config';
 import { config } from './extension';
+import * as vscode from 'vscode';
+import { extName } from './common';
 
 const delim = ' ; ';
-const sourceCmd = '.';
+const sourceCmd = 'source';
 
 
 // execute standard colcon scripts and output resulting envs to file
@@ -47,13 +49,27 @@ export function refreshEnvironment() {
     try {
         config.log("Trying to execute: " + cmd);
 
-        // FIXME: use of vscode internalTerminal shell
-        cp.execSync(cmd, { cwd: config.workspaceDir, env: config.defaultEnvs, shell: "/usr/bin/zsh"});
+        // get integratedTerminal shell setting
+        let platform = process.platform;
+        let platformName = "linux";
+        switch (platform) {
+            case "darwin": platformName = "osx"; break;
+            case "win32": platformName = "windows"; break;
+            default: break;
+        }
+
+        let shell = vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/zsh");
+        config.log("Current shell is " + shell);
+        cp.execSync(cmd, { cwd: config.workspaceDir, env: config.defaultEnvs, shell: shell});
     }
-    catch {
-        config.error("Exception while retrieving colcon environment");
-        // FIXME: vscode notification
+    catch (e) {
+        let err = e as Error;
+        let msg = "Exception while retrieving colcon environment: " + err.message;
+        config.error(msg);
+        vscode.window.showErrorMessage(msg);
     }
     // Set up common options
-    config.log("Environment refreshing done");
+    let msg = "Environment refreshing done";
+    config.log(msg);
+    vscode.window.showInformationMessage(extName + ": " + msg);
 }
