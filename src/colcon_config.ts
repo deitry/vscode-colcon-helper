@@ -7,6 +7,7 @@ const workspaceSetupProperty = "workspaceSetup";
 const workspaceDirProperty = "workspaceDir";
 const refreshOnStartProperty = "refreshOnStart";
 const refreshOnTasksOpenedProperty = "refreshOnTasksOpened";
+const refreshOnConfigurationChangedProperty = "refreshOnConfigurationChanged";
 const debugLogProperty = "outputLog"; // FIXME: rename var
 const outputLevelProperty = "outputLevel";
 const buildArgsProperty = "buildArgs";
@@ -22,6 +23,9 @@ enum OutputLevel {
     None = 3,
 }
 
+// in order to keep the same channel if config will be overwritten
+let outputChannel: vscode.OutputChannel | undefined = undefined;
+
 export class Config {
     env: string;
     globalSetup: string;
@@ -30,6 +34,7 @@ export class Config {
 
     refreshOnStart: boolean;
     refreshOnTasksOpened: boolean;
+	refreshOnConfigurationChanged: boolean;
 
     provideTasks: boolean;
     debugLog: boolean;
@@ -39,7 +44,6 @@ export class Config {
     testArgs: string[];
     testResultArgs: string[];
     defaultEnvs: { [key: string]: string };
-    private channel: vscode.OutputChannel | undefined;
 
     constructor() {
         let conf = vscode.workspace.getConfiguration(colcon_ns);
@@ -50,8 +54,8 @@ export class Config {
         this.provideTasks = conf.get(provideTasksProperty, false);
         this.debugLog = conf.get(debugLogProperty, false);
 
-        if (this.debugLog)
-            this.channel = vscode.window.createOutputChannel(extName);
+        if (this.debugLog && outputChannel == undefined)
+            outputChannel = vscode.window.createOutputChannel(extName);
 
         let outputLevelStr = conf.get(outputLevelProperty, "error");
 
@@ -91,6 +95,7 @@ export class Config {
 
         this.refreshOnStart = conf.get(refreshOnStartProperty, true);
         this.refreshOnTasksOpened = conf.get(refreshOnTasksOpenedProperty, false);
+        this.refreshOnConfigurationChanged = conf.get(refreshOnConfigurationChangedProperty, false);
 
         this.buildArgs = conf.get(buildArgsProperty, []);
         this.testArgs = conf.get(testArgsProperty, []);
@@ -103,30 +108,30 @@ export class Config {
     log(msg: any, forceConsole: boolean = false) {
         if (this.outputLevel > OutputLevel.Info) return;
 
-        if (forceConsole || this.channel == undefined) {
+        if (forceConsole || outputChannel == undefined) {
             console.log(extName + ": " + msg);
         } else {
-            this.channel.appendLine(msg);
+            outputChannel.appendLine(msg);
         }
     }
 
     warn(msg: any, forceConsole: boolean = false) {
         if (this.outputLevel > OutputLevel.Warning) return;
 
-        if (forceConsole || this.channel == undefined) {
+        if (forceConsole || outputChannel == undefined) {
             console.warn(extName + ": " + msg);
         } else {
-            this.channel.appendLine("warn: " + msg);
+            outputChannel.appendLine("warn: " + msg);
         }
     }
 
     error(msg: any, forceConsole: boolean = false) {
         if (this.outputLevel > OutputLevel.Error) return;
 
-        if (forceConsole || this.channel == undefined) {
+        if (forceConsole || outputChannel == undefined) {
             console.error(extName + ": " + msg);
         } else {
-            this.channel.appendLine("error: " + msg);
+            outputChannel.appendLine("error: " + msg);
         }
     }
 }

@@ -11,4 +11,4 @@ Thoughts on future enhancements:
     - Automatic detection if current workspace is colcon-workspace
     - Tests
     - Separate info and debug output levels
-    - Activate extension on configuration changed
+    - Automatically update environment if package is added or deleted

@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as dotenv from 'dotenv';
 import { Config } from './colcon_config';
 import { colcon_ns, colcon_exec } from './common';
+import { config } from './extension';
 
 const buildCmd = 'build';
 const testCmd = 'test';
@@ -14,14 +15,14 @@ let colconOptions: vscode.ShellExecutionOptions = {
 }
 
 // Get all possible colcon tasks
-export function getColconTasks(config: Config) {
+export function getColconTasks() {
 
     config.log("Start to aquire colcon tasks")
 
     // 'Build' single colcon command
     function makeColconTask(task: string, args: string[]) {
 
-        config.log("Making task:" + task)
+        config.log("Making task: " + task)
 
         let taskOptions = colconOptions;
 

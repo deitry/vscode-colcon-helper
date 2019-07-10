@@ -10,43 +10,64 @@ import { getColconTasks } from './tasks';
 import { extName, colcon_ns } from './common';
 
 const refreshCmd = 'refreshEnvironment';
-let config: Config;
+export let config: Config;
+let taskProvider: vscode.Disposable | undefined = undefined;
+
+function setupExtension(context: vscode.ExtensionContext) {
+	// delete old
+	if (taskProvider != undefined)
+		taskProvider.dispose();
+
+	if (!config.provideTasks) {
+		config.log(extName + " extension will not search for colcon tasks due to provideTask configuration");
+	} else {
+
+		taskProvider = vscode.tasks.registerTaskProvider('colcon', {
+			provideTasks: () => {
+				return getColconTasks();
+			},
+
+			resolveTask(_task: vscode.Task): vscode.Task | undefined {
+				return undefined;
+			}
+		});
+
+		context.subscriptions.push(taskProvider);
+	}
+}
 
 export function activate(context: vscode.ExtensionContext) {
 
 	config = new Config();
-
-	if (!config.provideTasks) {
-		config.log(extName + " extension will not search for colcon tasks due to provideTask configuration");
-		return;
-	}
-
 	config.log(extName + " extension is about to launch");
 
-	// FIXME: track addition or deletion of new colcon packages
+	// Register configuration change event
+	let onConfigChanged = vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
+		if (e.affectsConfiguration("colcon")) {
+			config.log(extName + " configuration changed.");
 
-	if (config.refreshOnStart) {
-		config.log("Refreshing environment on start")
+			// Reload configuration
+			config = new Config();
+			if (config.refreshOnConfigurationChanged && config.provideTasks)
+				refreshEnvironment();
 
-		refreshEnvironment(config);
-	}
-
-	const taskProvider = vscode.tasks.registerTaskProvider('colcon', {
-		provideTasks: () => {
-			return getColconTasks(config);
-		},
-
-		resolveTask(_task: vscode.Task): vscode.Task | undefined {
-			return undefined;
+			setupExtension(context);
 		}
 	});
 
-	let refreshCmdDisposable = vscode.commands.registerCommand(colcon_ns + "." + refreshCmd, () => {
-		refreshEnvironment(config);
+	let onRefreshCmd = vscode.commands.registerCommand(colcon_ns + "." + refreshCmd, () => {
+		refreshEnvironment();
 	});
 
-	context.subscriptions.push(taskProvider);
-	context.subscriptions.push(refreshCmdDisposable);
+	if (config.refreshOnStart && config.provideTasks) {
+		config.log("Refreshing environment on start")
+		refreshEnvironment();
+	}
+
+	setupExtension(context);
+
+	context.subscriptions.push(onRefreshCmd);
+	context.subscriptions.push(onConfigChanged);
 
 	config.log(extName + " extension is activated");
 }

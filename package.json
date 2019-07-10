@@ -66,6 +66,11 @@
 					"default": false,
 					"description": "Refresh colcon modules configuration on tasks request."
 				},
+				"colcon.refreshOnConfigurationChanged": {
+					"type": "boolean",
+					"default": false,
+					"description": "Refresh colcon modules configuration if Colcon Helper configuration is changed. It is still possible to update environment on command run."
+				},
 				"colcon.outputLog": {
 					"type": "boolean",
 					"default": false,
@@ -89,17 +94,20 @@
 					"description": "Select output level."
 				},
 				"colcon.buildArgs": {
-					"type": ["string"],
+					"type": "array",
+					"items": "string",
 					"default": ["--symlink-install"],
 					"description": "Arguments that are passed to colcon build command."
 				},
 				"colcon.testArgs": {
-					"type": ["string"],
+					"type": "array",
+					"items": "string",
 					"default": [],
 					"description": "Arguments that are passed to colcon test command."
 				},
 				"colcon.testResultArgs": {
-					"type": ["string"],
+					"type": "array",
+					"items": "string",
 					"default": ["--verbose"],
 					"description": "Arguments that are passed to colcon test-result command."
 				}

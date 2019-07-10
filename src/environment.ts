@@ -4,13 +4,14 @@ import * as cp from 'child_process';
 import * as path from 'path';
 
 import { Config } from './colcon_config';
+import { config } from './extension';
 
 const delim = ' ; ';
 const sourceCmd = '.';
 
 
 // execute standard colcon scripts and output resulting envs to file
-export function refreshEnvironment(config: Config) {
+export function refreshEnvironment() {
     config.log("Start to refresh environment");
 
     let cmd = "cd " + config.workspaceDir + delim;
