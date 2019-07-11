@@ -21,6 +21,7 @@ export function refreshEnvironment() {
     function sourceIfExists(setting: string, label: string) {
         let source = "";
 
+        // it is strongly recommended to check against absolute path
         if (fs.existsSync(setting)) {
             source = sourceCmd + ' ' + setting + delim;
             config.log("Source " + label + " command: " + source);
@@ -33,7 +34,7 @@ export function refreshEnvironment() {
     }
 
     cmd += sourceIfExists(config.globalSetup, "global");
-    cmd += sourceIfExists(config.workspaceDir + "/" + config.workspaceSetup, "workspace");
+    cmd += sourceIfExists(config.workspaceSetup, "workspace");
 
     if (!fs.existsSync(path.dirname(config.env))) {
         config.log("Making directory" + path.dirname(config.env));
@@ -42,8 +43,7 @@ export function refreshEnvironment() {
     }
 
     // FIXME: only colcon-related envs should be outputed
-    // FIXME: check if config.env is already an absolute path
-    cmd += 'echo -e "$(env)" > ' + config.workspaceDir + "/" + config.env + ' ; ';
+    cmd += 'echo -e "$(env)" > ' + config.env + ' ; ';
 
     // Executing whole command
     try {
@@ -61,15 +61,14 @@ export function refreshEnvironment() {
         let shell = vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/zsh");
         config.log("Current shell is " + shell);
         cp.execSync(cmd, { cwd: config.workspaceDir, env: config.defaultEnvs, shell: shell});
+
+        // Set up common options
+        let msg = "Environment refreshing done";
+        config.log(msg);
+        vscode.window.showInformationMessage(extName + ": " + msg);
     }
     catch (e) {
         let err = e as Error;
-        let msg = "Exception while retrieving colcon environment: " + err.message;
-        config.error(msg);
-        vscode.window.showErrorMessage(msg);
+        config.error("Exception while retrieving colcon environment: \n" + err.message);
     }
-    // Set up common options
-    let msg = "Environment refreshing done";
-    config.log(msg);
-    vscode.window.showInformationMessage(extName + ": " + msg);
 }

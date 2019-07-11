@@ -46,6 +46,7 @@
 				},
 				"colcon.workspaceDir": {
 					"type": "string",
+					"default": "${workspaceFolder}",
 					"description": "Folder, from which colcon commands are launched. ${workspaceFolder} substitution is not working for now."
 				},
 				"colcon.defaultEnvironment": {

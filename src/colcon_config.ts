@@ -35,11 +35,11 @@ export class Config {
     env: string;
     globalSetup: string;
     workspaceSetup: string;
-    workspaceDir: string | undefined;
+    workspaceDir: string;
 
     refreshOnStart: boolean;
     refreshOnTasksOpened: boolean;
-	refreshOnConfigurationChanged: boolean;
+    refreshOnConfigurationChanged: boolean;
 
     provideTasks: boolean;
     debugLog: boolean;
@@ -58,14 +58,14 @@ export class Config {
     constructor() {
         let conf = vscode.workspace.getConfiguration(colcon_ns);
 
-        let updateIfNotExist = function(property: string, value: any) {
+        let updateIfNotExist = function (property: string, value: any) {
             // TODO: ask if user wants to create this settings
             let propertyConf = conf.inspect(property);
             if (propertyConf != undefined
                 && propertyConf.globalValue == undefined
                 && propertyConf.workspaceValue == undefined
                 && propertyConf.workspaceFolderValue == undefined) {
-                    conf.update(property, value, vscode.ConfigurationTarget.Workspace);
+                conf.update(property, value, vscode.ConfigurationTarget.Workspace);
             }
         };
 
@@ -91,33 +91,40 @@ export class Config {
             this.outputLevel = OutputLevel.None;
         }
 
-        this.env = conf.get(envProperty, ".vscode/colcon.env");
+        this.workspaceDir = conf.get(workspaceDirProperty, "${workspaceFolder}");
+
+        if (this.workspaceDir == "") {
+            this.log("No workspace directory configuration provided. Trying to deduce.");
+        }
+
+        if (!this.workspaceDir.startsWith("/")) {
+            if (vscode.workspace.workspaceFolders == undefined) {
+                let msg = "Can't find workspace";
+                this.error(msg);
+                // should I throw error or try to softely disable extension?
+                // Since this is important setting we want it to be correctly set up
+                // TODO: handle in catch?
+                throw new Error(msg);
+            }
+
+            let mainWorkspaceDir = vscode.workspace.workspaceFolders[0].uri.path;
+            this.workspaceDir = this.resolvePath(this.workspaceDir, mainWorkspaceDir);
+        }
+
+        this.log("Current workspace dir: " + this.workspaceDir);
+
         this.globalSetup = conf.get(globalSetupProperty, "");
         this.workspaceSetup = conf.get(workspaceSetupProperty, "");
-        this.workspaceDir = conf.get(workspaceDirProperty);
-
-        if (this.workspaceDir == undefined || this.workspaceDir == "") {
-            this.warn("No workspace directory configuration provided");
-
-            // try to find out where we are - sinse I don't know yet
-            // how to resolve ${workspaceFolder} substitution
-
-            // let workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.parse('.vscode'))
-            // if (workspaceFolder != undefined) {
-            //     this.workspaceDir = workspaceFolder.uri.path;
-            // } else {
-            if (vscode.workspace.workspaceFolders == undefined)
-                throw new Error("Can't find workspace");
-
-            this.workspaceDir = vscode.workspace.workspaceFolders[0].uri.path;
-            // }
-        }
-        this.log("Current workspace dir: " + this.workspaceDir);
 
         if (this.provideTasks) {
             updateIfNotExist(globalSetupProperty, this.globalSetup);
+            // store workspaceSetup setting before we resolve it to absolute path
             updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
         }
+
+        // make absolute paths right away with resolvePath()
+        this.workspaceSetup = this.resolvePath(this.workspaceSetup);
+        this.env = this.resolvePath(conf.get(envProperty, ".vscode/colcon.env"));
 
         this.refreshOnStart = conf.get(refreshOnStartProperty, true);
         this.refreshOnTasksOpened = conf.get(refreshOnTasksOpenedProperty, false);
@@ -162,6 +169,7 @@ export class Config {
     }
 
     error(msg: any, forceConsole: boolean = false) {
+        vscode.window.showErrorMessage(extName + ": " + msg);
         if (this.outputLevel > OutputLevel.Error) return;
 
         if (forceConsole || outputChannel == undefined) {
@@ -169,5 +177,22 @@ export class Config {
         } else {
             outputChannel.appendLine("error: " + msg);
         }
+    }
+
+    resolvePath(fileName: string, cwd: string = this.workspaceDir) {
+        let result = fileName;
+
+        // replace common VS Code substitution variable
+        this.log(fileName + " , " + cwd);
+        if (cwd != "") {
+            result = result.replace("${workspaceFolder}", cwd);
+        }
+
+        // check if fileName is absolute path - it can be so by default or after previous step
+        if (result.startsWith("/")) return result;
+
+        // else - consider fileName a relative path
+        // if workspace is still empty - not a clue
+        return cwd + "/" + result;
     }
 }

@@ -54,15 +54,12 @@ export function getColconTasks() {
         return makeTask(colcon_exec, task, args, group);
     }
 
-    let fullEnvPath = config.workspaceDir + "/" + config.env;
-    if (fs.existsSync(fullEnvPath)) {
-        // FIXME: check if config.env is already an absolute path
-
-        config.log("Parse environment configuration in " + fullEnvPath);
-        colconOptions.env = dotenv.parse(fs.readFileSync(fullEnvPath));
+    if (fs.existsSync(config.env)) {
+        config.log("Parse environment configuration in " + config.env);
+        colconOptions.env = dotenv.parse(fs.readFileSync(config.env));
     }
     else {
-        config.log("Environment file does not exist. Expected: " + fullEnvPath);
+        config.log("Environment file does not exist. Expected: " + config.env);
     }
 
     let taskList: vscode.Task[] = [];
@@ -75,6 +72,7 @@ export function getColconTasks() {
     if (config.runFile != "") {
         taskList.push(makeTask(config.runCommand, 'run', config.runArgs.concat(config.runFile)));
     } else {
+        config.warn("Run file is undefined");
         // TODO: option whether notify about missing run file or not
         // vscode.window.showWarningMessage(extName + ": Run file is undefined");
     }
