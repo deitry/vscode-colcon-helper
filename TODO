@@ -18,3 +18,7 @@ Thoughts on future enhancements:
     - update environment after clean/build
     - path to colcon executable
     - Will there be problems with Windows path separators? Must check
+    - Add posiibility to Build, Test, Run to be launched as commands
+        - Should be outputted to Output Channel
+    - Option whether provide run command or not. For workspace with libraries
+        may not be available
