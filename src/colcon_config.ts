@@ -183,7 +183,6 @@ export class Config {
         let result = fileName;
 
         // replace common VS Code substitution variable
-        this.log(fileName + " , " + cwd);
         if (cwd != "") {
             result = result.replace("${workspaceFolder}", cwd);
         }
