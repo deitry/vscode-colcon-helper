@@ -33,6 +33,7 @@ export function refreshEnvironment() {
         return source;
     }
 
+    cmd += sourceIfExists(config.userSetup, "user");
     cmd += sourceIfExists(config.globalSetup, "global");
     cmd += sourceIfExists(config.workspaceSetup, "workspace");
 

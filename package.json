@@ -3,7 +3,7 @@
 	"displayName": "Colcon Helper",
 	"publisher": "deitry",
 	"description": "Adds tasks that are specific to colcon workspaces",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/deitry/vscode-colcon-helper.git"
@@ -37,6 +37,11 @@
 					"type": "string",
 					"default": ".vscode/colcon.env",
 					"description": "Path to file where colcon environment variables are listed. This file is auto-generated."
+				},
+				"colcon.userSetup": {
+					"type": "string",
+					"default": "",
+					"description": "Path to any file that user possibly want to source (like `.bashrc`)."
 				},
 				"colcon.globalSetup": {
 					"type": "string",
