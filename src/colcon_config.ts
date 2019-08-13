@@ -19,6 +19,7 @@ const cleanArgsProperty = "cleanArgs";
 const runCommandProperty = "runCommand";
 const runArgsProperty = "runArgs";
 const runFileProperty = "runFile";
+const runFileArgsProperty = "runFileArgs";
 const defaultEnvsProperty = "defaultEnvironment";
 
 enum OutputLevel {
@@ -54,6 +55,7 @@ export class Config {
     runCommand: string;
     runArgs: string[];
     runFile: string;
+    runFileArgs: string[];
 
     constructor() {
         let conf = vscode.workspace.getConfiguration(colcon_ns);
@@ -139,6 +141,7 @@ export class Config {
         this.runCommand = conf.get(runCommandProperty, "");
         this.runArgs = conf.get(runArgsProperty, []);
         this.runFile = conf.get(runFileProperty, "");
+        this.runFileArgs = conf.get(runFileArgsProperty, []);
         if (this.provideTasks) {
             updateIfNotExist(runFileProperty, this.runFile);
         }

@@ -43,7 +43,7 @@ export function getColconTasks() {
             task,
             colcon_ns,
             new vscode.ProcessExecution(executable, args, taskOptions),
-            // TODO: problemMatcher
+            [] // TODO: problemMatcher
         );
 
         newTask.presentationOptions = taskPresentation;
@@ -69,13 +69,13 @@ export function getColconTasks() {
     taskList.push(makeColconTask('test-results', [testResultCmd].concat(config.testResultArgs)));
     taskList.push(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
 
-    if (config.runFile != "") {
-        taskList.push(makeTask(config.runCommand, 'run', config.runArgs.concat(config.runFile)));
-    } else {
-        config.warn("Run file is undefined");
-        // TODO: option whether notify about missing run file or not
-        // vscode.window.showWarningMessage(extName + ": Run file is undefined");
-    }
+    let runArgs = config.runArgs;
+    //  NOTE: if "" passed then it may be considered as invalid arg when executed
+    if (config.runFile != "") { runArgs = runArgs.concat(config.runFile); }
+    else { config.warn("Run file is undefined"); }
+    runArgs = runArgs.concat(config.runFileArgs);
+    taskList.push(makeTask(config.runCommand, 'run', runArgs));
+
     config.log("Complete aquire colcon tasks")
     return taskList;
 }
