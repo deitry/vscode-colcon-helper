@@ -4,6 +4,12 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.3]
+
+- Next iteration on possibility to source arbitrary files: `userSetup` is gone,
+`workspaceSetup` and `globalSetup` are lists now.
+- Separated option to pass arguments to launch file
+
 ## [0.0.2]
 
 - Added `userSetup` option as possibility to source arbitrary file like `.bashrc`
