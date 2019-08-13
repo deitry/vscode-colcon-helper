@@ -14,7 +14,6 @@ Thoughts on future enhancements:
     - Automatically update environment if package is added or deleted
     - spinning wheel in status bar indicating that environment is updating right now
         - by now there is notification after refreshing complete
-    - multiple colcon workspace include
     - update environment after clean/build
     - path to colcon executable
     - Will there be problems with Windows path separators? Must check
