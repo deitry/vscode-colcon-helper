@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { colcon_ns, extName } from './common';
 
 const envProperty = "env";
-const userSetupProperty = "userSetup";
 const globalSetupProperty = "globalSetup";
 const workspaceSetupProperty = "workspaceSetup";
 const workspaceDirProperty = "workspaceDir";
@@ -34,9 +33,8 @@ let outputChannel: vscode.OutputChannel | undefined = undefined;
 
 export class Config {
     env: string;
-    userSetup: string;
-    globalSetup: string;
-    workspaceSetup: string;
+    globalSetup: string[] = [];
+    workspaceSetup: string[] = [];
     workspaceDir: string;
 
     refreshOnStart: boolean;
@@ -115,9 +113,9 @@ export class Config {
 
         this.log("Current workspace dir: " + this.workspaceDir);
 
-        this.userSetup = conf.get(userSetupProperty, "");
-        this.globalSetup = conf.get(globalSetupProperty, "");
-        this.workspaceSetup = conf.get(workspaceSetupProperty, "");
+        // use concat to handle both string and array values
+        this.globalSetup = [].concat(conf.get(globalSetupProperty, []));
+        this.workspaceSetup = [].concat(conf.get(workspaceSetupProperty, []));
 
         if (this.provideTasks) {
             updateIfNotExist(globalSetupProperty, this.globalSetup);
@@ -125,8 +123,6 @@ export class Config {
             updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
         }
 
-        // make absolute paths right away with resolvePath()
-        this.workspaceSetup = this.resolvePath(this.workspaceSetup);
         this.env = this.resolvePath(conf.get(envProperty, ".vscode/colcon.env"));
 
         this.refreshOnStart = conf.get(refreshOnStartProperty, true);

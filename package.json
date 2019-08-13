@@ -38,25 +38,22 @@
 					"default": ".vscode/colcon.env",
 					"description": "Path to file where colcon environment variables are listed. This file is auto-generated."
 				},
-				"colcon.userSetup": {
-					"type": "string",
-					"default": "",
-					"description": "Path to any file that user possibly want to source (like `.bashrc`)."
-				},
 				"colcon.globalSetup": {
-					"type": "string",
-					"default": "/opt/ros/dashing/setup.sh",
-					"description": "Path to setup.sh inside ROS."
+					"type": "array",
+					"items": "string",
+					"default": ["/opt/ros/dashing/setup.sh"],
+					"description": "List of paths setup files of workspaces that is common among all of your repositories, like ROS's `setup.sh`."
 				},
 				"colcon.workspaceSetup": {
-					"type": "string",
-					"default": "install/setup.sh",
-					"description": "Path to file where colcon environment variables are listed."
+					"type": "array",
+					"items": "string",
+					"default": ["install/setup.sh"],
+					"description": "List of paths to colcon workspaces files. You may list any number of workspaces as well as arbitrary files you want to source, like `~/.bashrc`."
 				},
 				"colcon.workspaceDir": {
 					"type": "string",
 					"default": "${workspaceFolder}",
-					"description": "Folder, from which colcon commands are launched. ${workspaceFolder} substitution is not working for now."
+					"description": "Folder, in which colcon commands are launched."
 				},
 				"colcon.defaultEnvironment": {
 					"type": "object",
@@ -146,7 +143,7 @@
 				},
 				"colcon.runFile": {
 					"type": "string",
-					"description": "File that is launched by run command"
+					"description": "File that is launched by run command (inserted after runArgs)"
 				}
 			}
 		}],

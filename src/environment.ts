@@ -20,22 +20,27 @@ export function refreshEnvironment() {
 
     function sourceIfExists(setting: string, label: string) {
         let source = "";
+        let absPath = config.resolvePath(setting);
 
         // it is strongly recommended to check against absolute path
-        if (fs.existsSync(setting)) {
-            source = sourceCmd + ' ' + setting + delim;
-            config.log("Source " + label + " command: " + source);
+        if (fs.existsSync(absPath)) {
+            source = sourceCmd + ' ' + absPath + delim;
+            config.log("Source " + label + " command: " + absPath);
         }
         else {
             config.log(
-                "Missing or invalid " + label + " configuration. Current is: " + setting);
+                "Missing or invalid " + label + " configuration. Expected: " + absPath);
         }
         return source;
     }
 
-    cmd += sourceIfExists(config.userSetup, "user");
-    cmd += sourceIfExists(config.globalSetup, "global");
-    cmd += sourceIfExists(config.workspaceSetup, "workspace");
+    config.globalSetup.forEach(element => {
+        cmd += sourceIfExists(element, "global");
+    });
+
+    config.workspaceSetup.forEach(element => {
+        cmd += sourceIfExists(element, "workspace");
+    });
 
     if (!fs.existsSync(path.dirname(config.env))) {
         config.log("Making directory" + path.dirname(config.env));
