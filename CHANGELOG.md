@@ -4,6 +4,11 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.4]
+
+- Support colcon running in multi-user workspaces.
+Almost any folder settings for colcon will be respected.
+
 ## [0.0.3]
 
 - Next iteration on possibility to source arbitrary files: `userSetup` is gone,
