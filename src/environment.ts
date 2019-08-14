@@ -16,6 +16,7 @@ const sourceCmd = 'source';
 export function refreshEnvironment() {
     config.log("Start to refresh environment");
 
+    // FIXME: how it works with multi-root workspaces?
     let cmd = "cd " + config.workspaceDir + delim;
 
     function sourceIfExists(setting: string, label: string) {

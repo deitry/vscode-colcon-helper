@@ -59,6 +59,8 @@ export function getColconTasks() {
         if (currentEditor) {
             let currentWsFolder = vscode.workspace.getWorkspaceFolder(currentEditor.document.uri);
             if (currentWsFolder) {
+                // fixme: there is config.workspaceDir setting, shouldn't it be used?
+                // Maybe we should detect folder only if not set in current workspace folder
                 taskOptions.cwd = currentWsFolder.uri.path;
                 ws = currentWsFolder;
             }
