@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { colcon_ns, extName } from './common';
+import { config } from 'dotenv';
 
 const envProperty = "env";
 const globalSetupProperty = "globalSetup";
@@ -58,29 +59,37 @@ export class Config {
     runFileArgs: string[];
 
     constructor() {
-        let conf = vscode.workspace.getConfiguration(colcon_ns);
+        // separate workspace and document configs to avoid warnings
+        let wsConf = vscode.workspace.getConfiguration(colcon_ns);
+        // Provide configuration for current document if it is possible
+        let resConf = (vscode.window.activeTextEditor)
+            ? vscode.workspace.getConfiguration(colcon_ns, vscode.window.activeTextEditor.document.uri)
+            : wsConf;
 
         let updateIfNotExist = function (property: string, value: any) {
             // TODO: ask if user wants to create this settings
-            let propertyConf = conf.inspect(property);
+            let propertyConf = wsConf.inspect(property);
             if (propertyConf != undefined
                 && propertyConf.globalValue == undefined
                 && propertyConf.workspaceValue == undefined
                 && propertyConf.workspaceFolderValue == undefined) {
-                conf.update(property, value, vscode.ConfigurationTarget.Workspace);
+                wsConf.update(property, value, vscode.ConfigurationTarget.WorkspaceFolder);
             }
         };
 
-        if (!conf)
+        if (!wsConf)
             throw new Error("Missed colcon configuration");
 
-        this.provideTasks = conf.get(provideTasksProperty, false);
-        this.debugLog = conf.get(debugLogProperty, false);
+        this.provideTasks = resConf.get(provideTasksProperty, false);
+        this.debugLog = wsConf.get(debugLogProperty, false);
 
         if (this.debugLog && outputChannel == undefined)
             outputChannel = vscode.window.createOutputChannel(extName);
 
-        let outputLevelStr = conf.get(outputLevelProperty, "error");
+        let outputLevelStr = wsConf.get(outputLevelProperty, "error");
+
+        if (vscode.window.activeTextEditor)
+            this.warn("DAAAA " + (vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.uri : "NOO") + this.provideTasks);
 
         if (this.debugLog) {
             switch (outputLevelStr) {
@@ -93,7 +102,7 @@ export class Config {
             this.outputLevel = OutputLevel.None;
         }
 
-        this.workspaceDir = conf.get(workspaceDirProperty, "${workspaceFolder}");
+        this.workspaceDir = resConf.get(workspaceDirProperty, "${workspaceFolder}");
 
         if (this.workspaceDir == "") {
             this.log("No workspace directory configuration provided. Trying to deduce.");
@@ -116,8 +125,8 @@ export class Config {
         this.log("Current workspace dir: " + this.workspaceDir);
 
         // use concat to handle both string and array values
-        this.globalSetup = [].concat(conf.get(globalSetupProperty, []));
-        this.workspaceSetup = [].concat(conf.get(workspaceSetupProperty, []));
+        this.globalSetup = [].concat(resConf.get(globalSetupProperty, []));
+        this.workspaceSetup = [].concat(resConf.get(workspaceSetupProperty, []));
 
         if (this.provideTasks) {
             updateIfNotExist(globalSetupProperty, this.globalSetup);
@@ -125,27 +134,27 @@ export class Config {
             updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
         }
 
-        this.env = this.resolvePath(conf.get(envProperty, ".vscode/colcon.env"));
+        this.env = this.resolvePath(resConf.get(envProperty, ".vscode/colcon.env"));
 
-        this.refreshOnStart = conf.get(refreshOnStartProperty, true);
-        this.refreshOnTasksOpened = conf.get(refreshOnTasksOpenedProperty, false);
-        this.refreshOnConfigurationChanged = conf.get(refreshOnConfigurationChangedProperty, false);
+        this.refreshOnStart = wsConf.get(refreshOnStartProperty, true);
+        this.refreshOnTasksOpened = wsConf.get(refreshOnTasksOpenedProperty, false);
+        this.refreshOnConfigurationChanged = wsConf.get(refreshOnConfigurationChangedProperty, false);
 
-        this.buildArgs = conf.get(buildArgsProperty, []);
-        this.testArgs = conf.get(testArgsProperty, []);
-        this.testResultArgs = conf.get(testResultArgsProperty, []);
-        this.cleanCommand = conf.get(cleanCommandProperty, "");
-        this.cleanArgs = conf.get(cleanArgsProperty, []);
-        this.cleanCommand = conf.get(cleanCommandProperty, "");
-        this.cleanArgs = conf.get(cleanArgsProperty, []);
-        this.runCommand = conf.get(runCommandProperty, "");
-        this.runArgs = conf.get(runArgsProperty, []);
-        this.runFile = conf.get(runFileProperty, "");
-        this.runFileArgs = conf.get(runFileArgsProperty, []);
+        this.buildArgs = resConf.get(buildArgsProperty, []);
+        this.testArgs = resConf.get(testArgsProperty, []);
+        this.testResultArgs = resConf.get(testResultArgsProperty, []);
+        this.cleanCommand = resConf.get(cleanCommandProperty, "");
+        this.cleanArgs = resConf.get(cleanArgsProperty, []);
+        this.cleanCommand = resConf.get(cleanCommandProperty, "");
+        this.cleanArgs = resConf.get(cleanArgsProperty, []);
+        this.runCommand = resConf.get(runCommandProperty, "");
+        this.runArgs = resConf.get(runArgsProperty, []);
+        this.runFile = resConf.get(runFileProperty, "");
+        this.runFileArgs = resConf.get(runFileArgsProperty, []);
         if (this.provideTasks) {
             updateIfNotExist(runFileProperty, this.runFile);
         }
-        this.defaultEnvs = conf.get(defaultEnvsProperty, {});
+        this.defaultEnvs = resConf.get(defaultEnvsProperty, {});
     }
 
     // NOTE: forceConsole will be used for extension debug purposes since console.log()

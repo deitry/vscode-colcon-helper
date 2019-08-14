@@ -31,16 +31,19 @@
 				"colcon.provideTasks": {
 					"type": "boolean",
 					"default": false,
+					"scope": "resource",
 					"description": "Determine whether extension should provide colcon tasks for workspace or not."
 				},
 				"colcon.env": {
 					"type": "string",
 					"default": ".vscode/colcon.env",
+					"scope": "resource",
 					"description": "Path to file where colcon environment variables are listed. This file is auto-generated."
 				},
 				"colcon.globalSetup": {
 					"type": "array",
 					"items": "string",
+					"scope": "resource",
 					"default": ["/opt/ros/dashing/setup.sh"],
 					"description": "List of paths setup files of workspaces that is common among all of your repositories, like ROS's `setup.sh`."
 				},
@@ -48,11 +51,13 @@
 					"type": "array",
 					"items": "string",
 					"default": ["install/setup.sh"],
+					"scope": "resource",
 					"description": "List of paths to colcon workspaces files. You may list any number of workspaces as well as arbitrary files you want to source, like `~/.bashrc`."
 				},
 				"colcon.workspaceDir": {
 					"type": "string",
 					"default": "${workspaceFolder}",
+					"scope": "resource",
 					"description": "Folder, in which colcon commands are launched."
 				},
 				"colcon.defaultEnvironment": {
@@ -61,32 +66,38 @@
 						"key": "string",
 						"value": "string"
 					},
-					"default": ".",
+					"default": {},
+					"scope": "resource",
 					"description": "Predefined environments"
 				},
 				"colcon.refreshOnStart": {
 					"type": "boolean",
 					"default": true,
+					"scope": "window",
 					"description": "Refresh colcon modules configuration on application start."
 				},
 				"colcon.refreshOnTasksOpened": {
 					"type": "boolean",
 					"default": false,
+					"scope": "window",
 					"description": "Refresh colcon modules configuration on tasks request."
 				},
 				"colcon.refreshOnConfigurationChanged": {
 					"type": "boolean",
 					"default": false,
+					"scope": "window",
 					"description": "Refresh colcon modules configuration if Colcon Helper configuration is changed. It is still possible to update environment on command run."
 				},
 				"colcon.outputLog": {
 					"type": "boolean",
 					"default": false,
+					"scope": "window",
 					"description": "Print debug messages to extension log. If false, outputLevel property is ignored."
 				},
 				"colcon.outputLevel": {
 					"type": "string",
 					"default": "error",
+					"scope": "window",
 					"enum": [
 						"info",
 						"warning",
@@ -105,50 +116,59 @@
 					"type": "array",
 					"items": "string",
 					"default": ["--symlink-install"],
+					"scope": "resource",
 					"description": "Arguments that are passed to colcon build command."
 				},
 				"colcon.testArgs": {
 					"type": "array",
 					"items": "string",
 					"default": [],
+					"scope": "resource",
 					"description": "Arguments that are passed to colcon test command."
 				},
 				"colcon.testResultArgs": {
 					"type": "array",
 					"items": "string",
 					"default": ["--verbose"],
+					"scope": "resource",
 					"description": "Arguments that are passed to colcon test-result command."
 				},
 				"colcon.cleanCommand": {
 					"type": "string",
 					"default": "rm",
+					"scope": "resource",
 					"description": "Command that is used to clean workspace."
 				},
 				"colcon.cleanArgs": {
 					"type": "array",
 					"items": "string",
 					"default": ["-r", "--verbose", "build", "install"],
+					"scope": "resource",
 					"description": "Arguments that are passed to clean command."
 				},
 				"colcon.runCommand": {
 					"type": "string",
 					"default": "/opt/ros/dashing/bin/ros2",
+					"scope": "resource",
 					"description": "Command that is used to launch project."
 				},
 				"colcon.runArgs": {
 					"type": "array",
 					"items": "string",
 					"default": ["launch"],
+					"scope": "resource",
 					"description": "Arguments that are passed to run command."
 				},
 				"colcon.runFile": {
 					"type": "string",
+					"scope": "resource",
 					"description": "File that is launched by run command (passed after `runArgs`)"
 				},
 				"colcon.runFileArgs": {
 					"type": "array",
 					"items": "string",
 					"default": [],
+					"scope": "resource",
 					"description": "Arguments that are passed to file in run command (passed after `runFile`)."
 				}
 			}

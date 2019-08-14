@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as dotenv from 'dotenv';
-import { Config } from './colcon_config';
 import { colcon_ns, colcon_exec, extName } from './common';
 import { config } from './extension';
 
@@ -23,6 +22,16 @@ const taskPresentation: vscode.TaskPresentationOptions = {
 // Get all possible colcon tasks
 export function getColconTasks() {
 
+    if (!config.provideTasks) {
+        config.log(extName + " extension will not search for colcon tasks due to provideTask configuration");
+        return [];
+    }
+
+    if (vscode.workspace.workspaceFolders == undefined) {
+        config.error("No workspace discovered");
+        return [];
+    }
+
     config.log("Start to aquire colcon tasks")
 
     // 'Build' single colcon command
@@ -37,9 +46,27 @@ export function getColconTasks() {
         config.log(executable + " " + localArgs.join(' '));
 
         let taskOptions = colconOptions;
+
+        if (vscode.workspace.workspaceFolders == undefined) {
+            // NOTE: in fact we checked it earlier, but Typescript force us to check
+            // again in order to use vscode.workspace.workspaceFolders[0]
+            return undefined;
+        }
+
+        // build in workspaceFolder where we are right now
+        let ws: vscode.WorkspaceFolder = vscode.workspace.workspaceFolders[0];
+        let currentEditor = vscode.window.activeTextEditor;
+        if (currentEditor) {
+            let currentWsFolder = vscode.workspace.getWorkspaceFolder(currentEditor.document.uri);
+            if (currentWsFolder) {
+                taskOptions.cwd = currentWsFolder.uri.path;
+                ws = currentWsFolder;
+            }
+        }
+
         let newTask = new vscode.Task(
             { type: colcon_ns, task: task, group: group },
-            vscode.TaskScope.Workspace,
+            ws,
             task,
             colcon_ns,
             new vscode.ProcessExecution(executable, args, taskOptions),
@@ -63,18 +90,22 @@ export function getColconTasks() {
     }
 
     let taskList: vscode.Task[] = [];
-    taskList.push(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
-    taskList.push(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));
+    let pushIfNotUndefined = (task: vscode.Task | undefined) => {
+        if (task) taskList.push(task);
+    };
+
+    pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
+    pushIfNotUndefined(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));
     // TODO: test-result dependsOn test by default? Maybe an option
-    taskList.push(makeColconTask('test-results', [testResultCmd].concat(config.testResultArgs)));
-    taskList.push(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
+    pushIfNotUndefined(makeColconTask('test-results', [testResultCmd].concat(config.testResultArgs)));
+    pushIfNotUndefined(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
 
     let runArgs = config.runArgs;
     //  NOTE: if "" passed then it may be considered as invalid arg when executed
     if (config.runFile != "") { runArgs = runArgs.concat(config.runFile); }
     else { config.warn("Run file is undefined"); }
     runArgs = runArgs.concat(config.runFileArgs);
-    taskList.push(makeTask(config.runCommand, 'run', runArgs));
+    pushIfNotUndefined(makeTask(config.runCommand, 'run', runArgs));
 
     config.log("Complete aquire colcon tasks")
     return taskList;
