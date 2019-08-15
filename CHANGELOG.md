@@ -4,9 +4,13 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.5]
+
+- Improved multi-root workspace support
+
 ## [0.0.4]
 
-- Support colcon running in multi-user workspaces.
+- Support colcon running in multi-root workspaces.
 Almost any folder settings for colcon will be respected.
 
 ## [0.0.3]

@@ -3,7 +3,7 @@
 	"displayName": "Colcon Helper",
 	"publisher": "deitry",
 	"description": "Adds tasks that are specific to colcon workspaces",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/deitry/vscode-colcon-helper.git"
