@@ -5,7 +5,7 @@ import { config } from 'dotenv';
 const envProperty = "env";
 const globalSetupProperty = "globalSetup";
 const workspaceSetupProperty = "workspaceSetup";
-const workspaceDirProperty = "workspaceDir";
+const colconCwdProperty = "colconCwd";
 const provideTasksProperty = "provideTasks";
 const refreshOnStartProperty = "refreshOnStart";
 const refreshOnTasksOpenedProperty = "refreshOnTasksOpened";
@@ -37,7 +37,8 @@ export class Config {
     env: string;
     globalSetup: string[] = [];
     workspaceSetup: string[] = [];
-    workspaceDir: string;
+    colconCwd: string;
+    currentWsFolder: vscode.WorkspaceFolder;
 
     refreshOnStart: boolean;
     refreshOnTasksOpened: boolean;
@@ -66,14 +67,14 @@ export class Config {
             ? vscode.workspace.getConfiguration(colcon_ns, vscode.window.activeTextEditor.document.uri)
             : wsConf;
 
-        let updateIfNotExist = function (property: string, value: any) {
+        let updateIfNotExist = function (property: string, value: any, target: vscode.ConfigurationTarget) {
             // TODO: ask if user wants to create this settings
             let propertyConf = wsConf.inspect(property);
             if (propertyConf != undefined
                 && propertyConf.globalValue == undefined
                 && propertyConf.workspaceValue == undefined
                 && propertyConf.workspaceFolderValue == undefined) {
-                wsConf.update(property, value, vscode.ConfigurationTarget.WorkspaceFolder);
+                wsConf.update(property, value, target);
             }
         };
 
@@ -88,9 +89,6 @@ export class Config {
 
         let outputLevelStr = wsConf.get(outputLevelProperty, "error");
 
-        if (vscode.window.activeTextEditor)
-            this.warn("DAAAA " + (vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document.uri : "NOO") + this.provideTasks);
-
         if (this.debugLog) {
             switch (outputLevelStr) {
                 case "none": this.outputLevel = OutputLevel.None; break;
@@ -102,36 +100,37 @@ export class Config {
             this.outputLevel = OutputLevel.None;
         }
 
-        this.workspaceDir = resConf.get(workspaceDirProperty, "${workspaceFolder}");
-
-        if (this.workspaceDir == "") {
-            this.log("No workspace directory configuration provided. Trying to deduce.");
+        // deduce current workspace folder
+        if (vscode.workspace.workspaceFolders == undefined) {
+            let msg = "Can't find workspace";
+            this.error(msg);
+            // should I throw error or try to softely disable extension?
+            // Since this is important setting we want it to be correctly set up
+            // TODO: handle in catch?
+            throw new Error(msg);
         }
 
-        if (!this.workspaceDir.startsWith("/")) {
-            if (vscode.workspace.workspaceFolders == undefined) {
-                let msg = "Can't find workspace";
-                this.error(msg);
-                // should I throw error or try to softely disable extension?
-                // Since this is important setting we want it to be correctly set up
-                // TODO: handle in catch?
-                throw new Error(msg);
-            }
-
-            let mainWorkspaceDir = vscode.workspace.workspaceFolders[0].uri.path;
-            this.workspaceDir = this.resolvePath(this.workspaceDir, mainWorkspaceDir);
+        let wsFolder: vscode.WorkspaceFolder | undefined = undefined;
+        if (vscode.window.activeTextEditor) {
+            wsFolder = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri);
         }
+        this.currentWsFolder = (wsFolder) ? wsFolder : vscode.workspace.workspaceFolders[0];
+        this.log("Current workspace dir: " + this.currentWsFolder.uri.path);
 
-        this.log("Current workspace dir: " + this.workspaceDir);
+        this.colconCwd = resConf.get(colconCwdProperty, "${workspaceFolder}");
+
+        if (!this.colconCwd.startsWith("/")) {
+            this.colconCwd = this.resolvePath(this.colconCwd);
+        }
 
         // use concat to handle both string and array values
         this.globalSetup = [].concat(resConf.get(globalSetupProperty, []));
         this.workspaceSetup = [].concat(resConf.get(workspaceSetupProperty, []));
 
         if (this.provideTasks) {
-            updateIfNotExist(globalSetupProperty, this.globalSetup);
+            updateIfNotExist(globalSetupProperty, this.globalSetup, vscode.ConfigurationTarget.Global);
             // store workspaceSetup setting before we resolve it to absolute path
-            updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
+            // updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
         }
 
         this.env = this.resolvePath(resConf.get(envProperty, ".vscode/colcon.env"));
@@ -152,7 +151,7 @@ export class Config {
         this.runFile = resConf.get(runFileProperty, "");
         this.runFileArgs = resConf.get(runFileArgsProperty, []);
         if (this.provideTasks) {
-            updateIfNotExist(runFileProperty, this.runFile);
+            updateIfNotExist(runFileProperty, this.runFile, vscode.ConfigurationTarget.WorkspaceFolder);
         }
         this.defaultEnvs = resConf.get(defaultEnvsProperty, {});
     }
@@ -190,12 +189,13 @@ export class Config {
         }
     }
 
-    resolvePath(fileName: string, cwd: string = this.workspaceDir) {
+    resolvePath(fileName: string, cwd: string | undefined = undefined) {
         let result = fileName;
+        let actualCwd: string = cwd ? cwd : this.currentWsFolder.uri.path;
 
         // replace common VS Code substitution variable
-        if (cwd != "") {
-            result = result.replace("${workspaceFolder}", cwd);
+        if (actualCwd != "") {
+            result = result.replace("${workspaceFolder}", actualCwd);
         }
 
         // check if fileName is absolute path - it can be so by default or after previous step
@@ -203,6 +203,6 @@ export class Config {
 
         // else - consider fileName a relative path
         // if workspace is still empty - not a clue
-        return cwd + "/" + result;
+        return actualCwd + "/" + result;
     }
 }

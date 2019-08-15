@@ -16,12 +16,12 @@ const sourceCmd = 'source';
 export function refreshEnvironment() {
     config.log("Start to refresh environment");
 
-    // FIXME: how it works with multi-root workspaces?
-    let cmd = "cd " + config.workspaceDir + delim;
+    let cmd = "";
 
     function sourceIfExists(setting: string, label: string) {
         let source = "";
-        let absPath = config.resolvePath(setting);
+        // relative paths to setup files should be resolved against colcon working directory
+        let absPath = config.resolvePath(setting, config.colconCwd);
 
         // it is strongly recommended to check against absolute path
         if (fs.existsSync(absPath)) {
@@ -67,7 +67,7 @@ export function refreshEnvironment() {
 
         let shell = vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/zsh");
         config.log("Current shell is " + shell);
-        cp.execSync(cmd, { cwd: config.workspaceDir, env: config.defaultEnvs, shell: shell});
+        cp.execSync(cmd, { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: shell});
 
         // Set up common options
         let msg = "Environment refreshing done";

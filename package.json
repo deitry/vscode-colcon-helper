@@ -54,7 +54,7 @@
 					"scope": "resource",
 					"description": "List of paths to colcon workspaces files. You may list any number of workspaces as well as arbitrary files you want to source, like `~/.bashrc`."
 				},
-				"colcon.workspaceDir": {
+				"colcon.colconCwd": {
 					"type": "string",
 					"default": "${workspaceFolder}",
 					"scope": "resource",
