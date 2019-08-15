@@ -40,8 +40,26 @@ export function activate(context: vscode.ExtensionContext) {
 	let taskProvider = vscode.tasks.registerTaskProvider('colcon', {
 		provideTasks: () => {
 			// reload config before making tasks since it may be affected by local folder settings
-			config = new Config();
-			return getColconTasks();
+
+			let taskList: vscode.Task[] = [];
+			let makeTasksForFolder = (wsFolder: vscode.WorkspaceFolder) => {
+				config = new Config(wsFolder);
+				taskList = taskList.concat(getColconTasks(wsFolder));
+			}
+
+			let active = vscode.window.activeTextEditor;
+			let activeWsFolder: vscode.WorkspaceFolder | undefined = undefined;
+			if (active) {
+				activeWsFolder = vscode.workspace.getWorkspaceFolder(active.document.uri);
+			}
+
+			if (activeWsFolder) {
+				makeTasksForFolder(activeWsFolder);
+			} else if (vscode.workspace.workspaceFolders) {
+				vscode.workspace.workspaceFolders.forEach(makeTasksForFolder);
+			}
+
+			return taskList;
 		},
 
 		resolveTask(_task: vscode.Task): vscode.Task | undefined {

@@ -59,13 +59,16 @@ export class Config {
     runFile: string;
     runFileArgs: string[];
 
-    constructor() {
+    constructor(wsFolder: vscode.WorkspaceFolder | undefined = undefined) {
+
         // separate workspace and document configs to avoid warnings
         let wsConf = vscode.workspace.getConfiguration(colcon_ns);
         // Provide configuration for current document if it is possible
-        let resConf = (vscode.window.activeTextEditor)
-            ? vscode.workspace.getConfiguration(colcon_ns, vscode.window.activeTextEditor.document.uri)
-            : wsConf;
+        let resConf = (wsFolder)
+            ? vscode.workspace.getConfiguration(colcon_ns, wsFolder.uri)
+            : ((vscode.window.activeTextEditor)
+                ? vscode.workspace.getConfiguration(colcon_ns, vscode.window.activeTextEditor.document.uri)
+                : wsConf);
 
         let updateIfNotExist = function (property: string, value: any, target: vscode.ConfigurationTarget) {
             // TODO: ask if user wants to create this settings
@@ -110,8 +113,7 @@ export class Config {
             throw new Error(msg);
         }
 
-        let wsFolder: vscode.WorkspaceFolder | undefined = undefined;
-        if (vscode.window.activeTextEditor) {
+        if (wsFolder == undefined && vscode.window.activeTextEditor) {
             wsFolder = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri);
         }
         this.currentWsFolder = (wsFolder) ? wsFolder : vscode.workspace.workspaceFolders[0];

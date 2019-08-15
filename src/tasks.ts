@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as dotenv from 'dotenv';
 import { colcon_ns, colcon_exec, extName } from './common';
 import { config } from './extension';
+import { Config } from './colcon_config';
 
 const buildCmd = 'build';
 const testCmd = 'test';
@@ -20,55 +21,31 @@ const taskPresentation: vscode.TaskPresentationOptions = {
 };
 
 // Get all possible colcon tasks
-export function getColconTasks() {
+export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
 
     if (!config.provideTasks) {
         config.log(extName + " extension will not search for colcon tasks due to provideTask configuration");
         return [];
     }
 
-    if (vscode.workspace.workspaceFolders == undefined) {
-        config.error("No workspace discovered");
-        return [];
-    }
-
-    config.log("Start to aquire colcon tasks")
+    config.log("Start to aquire colcon tasks for " + wsFolder.uri.path)
 
     // 'Build' single colcon command
-    function makeTask(
+    let makeTask = (
         executable: string,
         task: string,
         args: string[],
-        group: vscode.TaskGroup | undefined = undefined) {
-
+        group: vscode.TaskGroup | undefined = undefined
+    ) => {
         let localArgs = args;
         config.log("Making task: " + task);
         config.log(executable + " " + localArgs.join(' '));
 
         let taskOptions = colconOptions;
 
-        if (vscode.workspace.workspaceFolders == undefined) {
-            // NOTE: in fact we checked it earlier, but Typescript force us to check
-            // again in order to use vscode.workspace.workspaceFolders[0]
-            return undefined;
-        }
-
-        // build in workspaceFolder where we are right now
-        let ws: vscode.WorkspaceFolder = vscode.workspace.workspaceFolders[0];
-        let currentEditor = vscode.window.activeTextEditor;
-        if (currentEditor) {
-            let currentWsFolder = vscode.workspace.getWorkspaceFolder(currentEditor.document.uri);
-            if (currentWsFolder) {
-                // fixme: there is config.workspaceDir setting, shouldn't it be used?
-                // Maybe we should detect folder only if not set in current workspace folder
-                taskOptions.cwd = currentWsFolder.uri.path;
-                ws = currentWsFolder;
-            }
-        }
-
         let newTask = new vscode.Task(
             { type: colcon_ns, task: task, group: group },
-            ws,
+            config.currentWsFolder,
             task,
             colcon_ns,
             new vscode.ProcessExecution(executable, args, taskOptions),
@@ -79,7 +56,11 @@ export function getColconTasks() {
         return newTask;
     }
 
-    function makeColconTask(task: string, args: string[], group: vscode.TaskGroup | undefined = undefined) {
+    let makeColconTask = (
+        task: string,
+        args: string[],
+        group: vscode.TaskGroup | undefined = undefined
+    ) => {
         return makeTask(colcon_exec, task, args, group);
     }
 
