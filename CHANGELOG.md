@@ -4,6 +4,11 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.6]
+
+- Description and howtos in README.md
+- `colcon` icon
+
 ## [0.0.5]
 
 - Improved multi-root workspace support
