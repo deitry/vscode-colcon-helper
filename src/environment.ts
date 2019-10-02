@@ -1,10 +1,8 @@
 import * as fs from 'fs';
-import * as dotenv from 'dotenv';
 import * as cp from 'child_process';
 import * as path from 'path';
 
-import { Config } from './colcon_config';
-import { config } from './extension';
+import { config, updatePackageList } from './extension';
 import * as vscode from 'vscode';
 import { extName } from './common';
 
@@ -59,9 +57,11 @@ export function refreshEnvironment() {
         cp.execSync(cmd, { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell});
 
         // Set up common options
-        let msg = "Environment refreshing done";
+        let msg = "Environment Refreshing Done";
         config.log(msg);
         vscode.window.showInformationMessage(extName + ": " + msg);
+
+        updatePackageList();
     }
     catch (e) {
         let err = e as Error;

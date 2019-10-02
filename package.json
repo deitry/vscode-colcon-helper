@@ -23,7 +23,23 @@
 		"commands": [
 			{
 				"command": "colcon.refreshEnvironment",
-				"title": "Refresh colcon environment"
+				"title": "Colcon: Refresh Environment for Current Workspace Folder"
+			},
+			{
+				"command": "colcon.refreshPackageList",
+				"title": "Colcon: Refresh Package List for Current Workspace Folder"
+			},
+			{
+				"command": "colcon.buildCurrentPackage",
+				"title": "Colcon: Build Current Package"
+			},
+			{
+				"command": "colcon.buildSelectedPackages",
+				"title": "Colcon: Build Selected Packages"
+			},
+			{
+				"command": "colcon.buildSinglePackage",
+				"title": "Colcon: Build Single Selected Package"
 			}
 		],
 		"configuration": [{

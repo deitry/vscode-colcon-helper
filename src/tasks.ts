@@ -1,9 +1,8 @@
-import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as dotenv from 'dotenv';
 import { colcon_ns, colcon_exec, extName } from './common';
-import { config } from './extension';
+import { config, packages } from './extension';
 
 const buildCmd = 'build';
 const testCmd = 'test';
@@ -20,6 +19,58 @@ const taskPresentation: vscode.TaskPresentationOptions = {
     echo: true
 };
 
+export function getBuildTaskForPackage(packageName: string | string[]): vscode.Task | undefined {
+    if (config.buildArgs.includes('--packages-select')) {
+        // FIXME: in case of build-current we must not just concat packages-select, but replace if it is already exist
+        config.error('Cannot add build task for current package, because there is already `--packages-select` option.');
+    } else {
+
+        let descriptor = typeof(packageName) == 'string' ? `'${packageName}'` : 'selected';
+
+        return makeColconTask(
+            `build ${descriptor}`,
+            [buildCmd].concat(config.buildArgs).concat('--packages-select').concat(packageName),
+            vscode.TaskGroup.Build);
+    }
+    return undefined;
+}
+
+
+// 'Build' single colcon command
+let makeTask = (
+    executable: string,
+    task: string,
+    args: string[],
+    group: vscode.TaskGroup | undefined = undefined
+) => {
+    let localArgs = args;
+    config.log("Making task: " + task);
+    config.log(executable + " " + localArgs.join(' '));
+
+    let taskOptions = colconOptions;
+
+    let newTask = new vscode.Task(
+        { type: colcon_ns, task: task, group: group },
+        config.currentWsFolder,
+        task,
+        colcon_ns,
+        new vscode.ProcessExecution(executable, args, taskOptions),
+        [] // TODO: problemMatcher
+    );
+
+    newTask.presentationOptions = taskPresentation;
+    return newTask;
+}
+
+let makeColconTask = (
+    task: string,
+    args: string[],
+    group: vscode.TaskGroup | undefined = undefined
+) => {
+    return makeTask(colcon_exec, task, args, group);
+}
+
+
 // Get all possible colcon tasks
 export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
 
@@ -29,40 +80,6 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
     }
 
     config.log("Start to aquire colcon tasks for " + wsFolder.uri.path)
-
-    // 'Build' single colcon command
-    let makeTask = (
-        executable: string,
-        task: string,
-        args: string[],
-        group: vscode.TaskGroup | undefined = undefined
-    ) => {
-        let localArgs = args;
-        config.log("Making task: " + task);
-        config.log(executable + " " + localArgs.join(' '));
-
-        let taskOptions = colconOptions;
-
-        let newTask = new vscode.Task(
-            { type: colcon_ns, task: task, group: group },
-            config.currentWsFolder,
-            task,
-            colcon_ns,
-            new vscode.ProcessExecution(executable, args, taskOptions),
-            [] // TODO: problemMatcher
-        );
-
-        newTask.presentationOptions = taskPresentation;
-        return newTask;
-    }
-
-    let makeColconTask = (
-        task: string,
-        args: string[],
-        group: vscode.TaskGroup | undefined = undefined
-    ) => {
-        return makeTask(colcon_exec, task, args, group);
-    }
 
     if (fs.existsSync(config.env)) {
         config.log("Parse environment configuration in " + config.env);
@@ -74,51 +91,19 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
 
     let taskList: vscode.Task[] = [];
     let pushIfNotUndefined = (task: vscode.Task | undefined) => {
+        config.log(task);
         if (task) taskList.push(task);
     };
 
-    if (vscode.window.activeTextEditor) {
-        if (config.buildArgs.includes('--packages-select')) {
-            config.error('Cannot add build task for current package, because there is already `--packages-select` option.');
-        } else {
-            // FIXME: in case of build-current we must not just concat packages-select, but replace if it is already exist
-            let buildCurrentArgs = ['--packages-select'];
+    packages.forEach(pkg => {
+        if (vscode.window.activeTextEditor
+            && pkg.path != ''
+            && vscode.window.activeTextEditor.document.uri.path.startsWith(pkg.path)) {
 
-            // 1. Get list of paths for all available packages
-            let packagesList = cp.execSync(
-                colcon_exec + ' list --paths-only',
-                { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell }
-            ).toString().split('\n');
-
-            // 2. Check each path
-            packagesList.forEach(path => {
-                if (vscode.window.activeTextEditor
-                    && path != ''
-                    && vscode.window.activeTextEditor.document.uri.path.startsWith(path)) {
-
-                    // 3. Get package name
-                    let localPackageName = cp.execSync(
-                        colcon_exec + ' list --names-only --base-path ' + path,
-                        { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell }
-                    ).toString().replace('\n', '');
-
-                    if (localPackageName) {
-                        config.log('Found local package ' + localPackageName);
-
-                        pushIfNotUndefined(
-                            makeColconTask(
-                                `build \`${localPackageName}\``,
-                                [buildCmd].concat(config.buildArgs)
-                                    .concat(buildCurrentArgs)
-                                    .concat(localPackageName),
-                                vscode.TaskGroup.Build));
-                    } else {
-                        config.warn(`Package at the path ${path} was not found`);
-                    }
-                }
-            });
+                config.log('check ' + pkg.path);
+                pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
         }
-    }
+    });
 
     pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
     pushIfNotUndefined(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));
