@@ -59,6 +59,8 @@ export class Config {
     runFile: string;
     runFileArgs: string[];
 
+    shell: string;
+
     constructor(wsFolder: vscode.WorkspaceFolder | undefined = undefined) {
 
         // separate workspace and document configs to avoid warnings
@@ -156,6 +158,16 @@ export class Config {
             updateIfNotExist(runFileProperty, this.runFile, vscode.ConfigurationTarget.WorkspaceFolder);
         }
         this.defaultEnvs = resConf.get(defaultEnvsProperty, {});
+
+        // get integratedTerminal shell setting
+        let platform = process.platform;
+        let platformName = "linux";
+        switch (platform) {
+            case "darwin": platformName = "osx"; break;
+            case "win32": platformName = "windows"; break;
+            default: break;
+        }
+        this.shell = vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/zsh");
     }
 
     // NOTE: forceConsole will be used for extension debug purposes since console.log()

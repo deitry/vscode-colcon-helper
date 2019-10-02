@@ -55,19 +55,8 @@ export function refreshEnvironment() {
     // Executing whole command
     try {
         config.log("Trying to execute: " + cmd);
-
-        // get integratedTerminal shell setting
-        let platform = process.platform;
-        let platformName = "linux";
-        switch (platform) {
-            case "darwin": platformName = "osx"; break;
-            case "win32": platformName = "windows"; break;
-            default: break;
-        }
-
-        let shell = vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/zsh");
-        config.log("Current shell is " + shell);
-        cp.execSync(cmd, { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: shell});
+        config.log("Current shell is " + config.shell);
+        cp.execSync(cmd, { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell});
 
         // Set up common options
         let msg = "Environment refreshing done";
