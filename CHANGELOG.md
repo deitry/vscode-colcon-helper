@@ -2,6 +2,11 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [0.1.1]
+
+- Updated manifest
+- Do not scan for packages if workspaceFolder `colcon.provideTasks` is not set or false.
+
 ## [0.1.0]
 
 - `ros2 launch` on active file if it ends with `.launch.py` and is inside colcon workspace folder

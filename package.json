@@ -3,8 +3,36 @@
 	"displayName": "Colcon Helper",
 	"publisher": "deitry",
 	"description": "Adds tasks that are specific to colcon workspaces",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"icon": "images/icon.png",
+	"homepage": "https://colcon.readthedocs.io",
+	"license": "MIT",
+	"author": {
+		"email": "dm.s.vornychev@gmail.com",
+		"name": "Dmitriy Vornychev",
+		"url": "https://github.com/deitry"
+	},
+	"maintainers": [
+		{
+			"email": "dm.s.vornychev@gmail.com",
+			"name": "Dmitriy Vornychev",
+			"url": "https://github.com/deitry"
+		}
+	],
+	"bugs": {
+		"email": "dm.s.vornychev@gmail.com",
+		"url": "https://github.com/deitry/vscode-colcon-helper/issues"
+	},
+	"keywords": [
+		"colcon",
+		"ros",
+		"ros2",
+		"osrf",
+		"dashing",
+		"build",
+		"tool",
+		"tasks"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/deitry/vscode-colcon-helper.git"
