@@ -94,16 +94,31 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
         if (task) taskList.push(task);
     };
 
-    if (wsFolder.name in packages) {
-        packages[wsFolder.name].forEach(pkg => {
-            if (vscode.window.activeTextEditor
-                && pkg.path != ''
-                && vscode.window.activeTextEditor.document.uri.path.startsWith(pkg.path)) {
+    let active = vscode.window.activeTextEditor;
+    if (active) {
+        if (wsFolder.name in packages) {
+            packages[wsFolder.name].forEach(pkg => {
+                if (active && pkg.path != '' && active.document.uri.path.startsWith(pkg.path)) {
 
-                    config.log('check ' + pkg.path);
-                    pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
+                        config.log('check ' + pkg.path);
+                        pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
+                }
+            });
+        }
+
+        if (active.document.uri.path.endsWith('.launch.py')) {
+            let fileName = active.document.fileName;
+            if (fileName.startsWith(wsFolder.uri.fsPath)) {
+                // get path relative to wsFolder, because absolute paths somehow could not be treaten by ros2 launch
+                let basename = '.' + fileName.substr(wsFolder.uri.fsPath.length);
+                let currentRunArgs = ['launch'];
+
+                if (config.runArgs.includes('--debug')) currentRunArgs = currentRunArgs.concat('--debug');
+                currentRunArgs = currentRunArgs.concat(basename).concat(config.runFileArgs);
+
+                pushIfNotUndefined(makeTask(config.runCommand, `launch '${basename}'`, currentRunArgs));
             }
-        });
+        }
     }
 
     pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
@@ -113,7 +128,7 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
     pushIfNotUndefined(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
 
     let runArgs = config.runArgs;
-    //  NOTE: if "" passed then it may be considered as invalid arg when executed
+    //  NOTE: if "" passed as runFile then it may be considered as invalid arg when executed
     if (config.runFile != "") { runArgs = runArgs.concat(config.runFile); }
     else { config.warn("Run file is undefined"); }
     runArgs = runArgs.concat(config.runFileArgs);

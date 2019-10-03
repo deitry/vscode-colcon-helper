@@ -2,6 +2,10 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [0.1.0]
+
+- `ros2 launch` on active file if it ends with `.launch.py` and is inside colcon workspace folder
+
 ## [0.0.9]
 
 - Build commands now always ask for workspace folder

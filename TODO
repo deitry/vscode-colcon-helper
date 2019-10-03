@@ -20,3 +20,4 @@ Thoughts on future enhancements:
         - Should be outputted to Output Channel
     - Option whether provide run command or not. For workspace with libraries
         may not be available
+    - Combine `ros2 launch` into single `runCmd` command
