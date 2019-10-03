@@ -70,7 +70,6 @@ let makeColconTask = (
     return makeTask(colcon_exec, task, args, group);
 }
 
-
 // Get all possible colcon tasks
 export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
 
@@ -95,15 +94,17 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
         if (task) taskList.push(task);
     };
 
-    packages.forEach(pkg => {
-        if (vscode.window.activeTextEditor
-            && pkg.path != ''
-            && vscode.window.activeTextEditor.document.uri.path.startsWith(pkg.path)) {
+    if (wsFolder.name in packages) {
+        packages[wsFolder.name].forEach(pkg => {
+            if (vscode.window.activeTextEditor
+                && pkg.path != ''
+                && vscode.window.activeTextEditor.document.uri.path.startsWith(pkg.path)) {
 
-                config.log('check ' + pkg.path);
-                pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
-        }
-    });
+                    config.log('check ' + pkg.path);
+                    pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
+            }
+        });
+    }
 
     pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
     pushIfNotUndefined(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));

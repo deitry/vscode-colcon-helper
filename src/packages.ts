@@ -8,16 +8,17 @@ export class PackageInfo implements vscode.QuickPickItem {
     }
 
     get label() { return this.name; }
-    get description() { return this.path; }
-    get details() { return this.buildSystem; }
+    get description() { return this.buildSystem; }
+    get detail() { return this.path; }
 }
 
-export function getAllPackages(): PackageInfo[] {
+export function getAllPackages(folder: vscode.WorkspaceFolder): PackageInfo[] {
     let cmd = [colcon_exec].concat('list');
+
     // FIXME: get rid of execSync
     let packagesRaw = cp.execSync(
         cmd.join(' '),
-        { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell }
+        { cwd: folder.uri.path, env: config.defaultEnvs, shell: config.shell }
     ).toString().replace(RegExp('\n$'), '').split('\n');
 
     // Replace newline at end because after split it gets its own entry in resulting list

@@ -56,12 +56,11 @@ export function refreshEnvironment() {
         config.log("Current shell is " + config.shell);
         cp.execSync(cmd, { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell});
 
-        // Set up common options
+        updatePackageList();
+
         let msg = "Environment Refreshing Done";
         config.log(msg);
         vscode.window.showInformationMessage(extName + ": " + msg);
-
-        updatePackageList();
     }
     catch (e) {
         let err = e as Error;

@@ -2,6 +2,11 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [0.0.8]
+
+- Build commands via command panel
+- Build task/cmmand for current or arbitrary choosed package
+
 ## [0.0.7]
 
 - Ability to build single package in which current opened document is located.

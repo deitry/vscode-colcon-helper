@@ -3,7 +3,7 @@
 	"displayName": "Colcon Helper",
 	"publisher": "deitry",
 	"description": "Adds tasks that are specific to colcon workspaces",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"icon": "images/icon.png",
 	"repository": {
 		"type": "git",
@@ -23,11 +23,11 @@
 		"commands": [
 			{
 				"command": "colcon.refreshEnvironment",
-				"title": "Colcon: Refresh Environment for Current Workspace Folder"
+				"title": "Colcon: Refresh Environment"
 			},
 			{
 				"command": "colcon.refreshPackageList",
-				"title": "Colcon: Refresh Package List for Current Workspace Folder"
+				"title": "Colcon: Refresh Package List"
 			},
 			{
 				"command": "colcon.buildCurrentPackage",
