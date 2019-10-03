@@ -31,9 +31,13 @@ function getCurrentWsFolder(): vscode.WorkspaceFolder | undefined {
 	return undefined;
 }
 
-async function getWorkspaceFolder(): Promise<vscode.WorkspaceFolder | undefined> {
-	let currentWsFolder = getCurrentWsFolder();
-	if (currentWsFolder) return currentWsFolder;
+async function getWorkspaceFolder(forceAsk: boolean = false): Promise<vscode.WorkspaceFolder | undefined> {
+
+	let currentWsFolder: vscode.WorkspaceFolder | undefined;
+	if (!forceAsk) {
+		currentWsFolder = getCurrentWsFolder();
+		if (currentWsFolder) return currentWsFolder;
+	}
 
 	currentWsFolder = await vscode.window.showWorkspaceFolderPick();
 	if (currentWsFolder && !(currentWsFolder.name in packages))
@@ -74,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let onRefreshListCmd = vscode.commands.registerCommand(colcon_ns + "." + refreshPackageList, async () => {
-		let folder = await getWorkspaceFolder();
+		let folder = await getWorkspaceFolder(false);
 		if (!folder) {
 			config.error('No workspace folder provided!');
 			return;
@@ -106,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let buildPackageCmd = vscode.commands.registerCommand(colcon_ns + "." + buildPkgCmdName, async () => {
-		let folder = await getWorkspaceFolder();
+		let folder = await getWorkspaceFolder(true);
 		actualizeConfig(folder);
 		if (folder) {
 			vscode.window.showQuickPick(packages[folder.name], { canPickMany: true })
@@ -120,7 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let buildSinglePackageCmd = vscode.commands.registerCommand(colcon_ns + "." + buildSinglePkgCmdName, async () => {
-		let folder = await getWorkspaceFolder();
+		let folder = await getWorkspaceFolder(true);
 		actualizeConfig(folder);
 
 		if (folder) {

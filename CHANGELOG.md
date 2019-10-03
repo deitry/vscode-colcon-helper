@@ -2,6 +2,10 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [0.0.9]
+
+- Build commands now always ask for workspace folder
+
 ## [0.0.8]
 
 - Build commands via command panel
