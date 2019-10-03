@@ -15,13 +15,21 @@ const buildPkgCmdName = 'buildSelectedPackages';
 export let packages: { [id: string] : PackageInfo[]; } = {};
 export let config: Config;
 
-export function updatePackageList(folder: vscode.WorkspaceFolder | undefined = undefined) {
+export function updatePackageList(folder: vscode.WorkspaceFolder | undefined = undefined): boolean {
 
-	config.log('Refresh package list...' + (folder ? folder.name : ''));
 	let cwd = folder ? folder : config.currentWsFolder;
+	let provideTasks = vscode.workspace.getConfiguration("colcon", cwd.uri).inspect("provideTasks");
+
+	if (!provideTasks || !('workspaceFolderValue' in provideTasks) || !provideTasks.workspaceFolderValue) {
+		config.log('Will not search for packages due to colcon.provideTasks false setting for workspace folder');
+		return false;
+	}
+
+	config.log('Refresh package list...' + (cwd.name));
 	packages[cwd.name] = getAllPackages(cwd);
 	config.log('Package list refreshing done');
 	// vscode.window.showInformationMessage(extName + ": List of Packages was Updated");
+	return true;
 }
 
 function getCurrentWsFolder(): vscode.WorkspaceFolder | undefined {
@@ -84,8 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
 			return;
 		}
 		actualizeConfig(folder);
-		updatePackageList();
-		vscode.window.showInformationMessage(extName + ": List of Packages was Updated");
+		if (updatePackageList()) vscode.window.showInformationMessage(extName + ": List of Packages was Updated");
 	});
 
 	let buildCurrentCmd = vscode.commands.registerCommand(colcon_ns + "." + buildCurrentPkgCmdName, async () => {
