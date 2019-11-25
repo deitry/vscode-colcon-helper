@@ -16,7 +16,7 @@ export function getAllPackages(folder: vscode.WorkspaceFolder): PackageInfo[] {
     let cmd = [colcon_exec].concat('list');
 
     // FIXME: get rid of execSync
-    let packagesRaw = cp.execSync(
+    let packagesRaw: string[] = cp.execSync(
         cmd.join(' '),
         { cwd: folder.uri.path, env: config.defaultEnvs, shell: config.shell }
     ).toString().replace(RegExp('\n$'), '').split('\n');

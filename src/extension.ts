@@ -150,6 +150,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let taskProvider = vscode.tasks.registerTaskProvider('colcon', {
 		provideTasks: () => {
+			if (config) config.log("Start providing tasks");
+
 			let taskList: vscode.Task[] = [];
 			let makeTasksForFolder = (wsFolder: vscode.WorkspaceFolder) => {
 				config = new Config(wsFolder);
@@ -172,6 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
 		},
 
 		resolveTask(_task: vscode.Task): vscode.Task | undefined {
+			if (config) config.log("Resolve tasks called");
 			return undefined;
 		}
 	});

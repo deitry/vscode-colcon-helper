@@ -38,7 +38,7 @@
 		"url": "https://github.com/deitry/vscode-colcon-helper.git"
 	},
 	"engines": {
-		"vscode": "^1.36.0"
+		"vscode": "^1.40.0"
 	},
 	"categories": [
 		"Other"
@@ -70,154 +70,171 @@
 				"title": "Colcon: Build Single Selected Package"
 			}
 		],
-		"configuration": [{
-			"title": "colcon configuration",
-			"properties": {
-				"colcon.provideTasks": {
-					"type": "boolean",
-					"default": false,
-					"scope": "resource",
-					"description": "Determine whether extension should provide colcon tasks for workspace or not."
-				},
-				"colcon.env": {
-					"type": "string",
-					"default": ".vscode/colcon.env",
-					"scope": "resource",
-					"description": "Path to file where colcon environment variables are listed. This file is auto-generated."
-				},
-				"colcon.globalSetup": {
-					"type": "array",
-					"items": "string",
-					"scope": "resource",
-					"default": ["/opt/ros/dashing/setup.sh"],
-					"description": "List of paths setup files of workspaces that is common among all of your repositories, like ROS's `setup.sh`."
-				},
-				"colcon.workspaceSetup": {
-					"type": "array",
-					"items": "string",
-					"default": ["install/setup.sh"],
-					"scope": "resource",
-					"description": "List of paths to colcon workspaces files. You may list any number of workspaces as well as arbitrary files you want to source, like `~/.bashrc`."
-				},
-				"colcon.colconCwd": {
-					"type": "string",
-					"default": "${workspaceFolder}",
-					"scope": "resource",
-					"description": "Folder, in which colcon commands are launched."
-				},
-				"colcon.defaultEnvironment": {
-					"type": "object",
-					"properties": {
-						"key": "string",
-						"value": "string"
+		"configuration": [
+			{
+				"title": "colcon configuration",
+				"properties": {
+					"colcon.provideTasks": {
+						"type": "boolean",
+						"default": false,
+						"scope": "resource",
+						"description": "Determine whether extension should provide colcon tasks for workspace or not."
 					},
-					"default": {},
-					"scope": "resource",
-					"description": "Predefined environments"
-				},
-				"colcon.refreshOnStart": {
-					"type": "boolean",
-					"default": true,
-					"scope": "window",
-					"description": "Refresh colcon modules configuration on application start."
-				},
-				"colcon.refreshOnTasksOpened": {
-					"type": "boolean",
-					"default": false,
-					"scope": "window",
-					"description": "Refresh colcon modules configuration on tasks request."
-				},
-				"colcon.refreshOnConfigurationChanged": {
-					"type": "boolean",
-					"default": false,
-					"scope": "window",
-					"description": "Refresh colcon modules configuration if Colcon Helper configuration is changed. It is still possible to update environment on command run."
-				},
-				"colcon.outputLog": {
-					"type": "boolean",
-					"default": false,
-					"scope": "window",
-					"description": "Print debug messages to extension log. If false, outputLevel property is ignored."
-				},
-				"colcon.outputLevel": {
-					"type": "string",
-					"default": "error",
-					"scope": "window",
-					"enum": [
-						"info",
-						"warning",
-						"error",
-						"none"
-					],
-					"enumDescriptions": [
-						"All messages, including common information and debug messages",
-						"Warning and error messages",
-						"Only error messages",
-						"No output at all"
-					],
-					"description": "Select output level."
-				},
-				"colcon.buildArgs": {
-					"type": "array",
-					"items": "string",
-					"default": ["--symlink-install"],
-					"scope": "resource",
-					"description": "Arguments that are passed to colcon build command."
-				},
-				"colcon.testArgs": {
-					"type": "array",
-					"items": "string",
-					"default": [],
-					"scope": "resource",
-					"description": "Arguments that are passed to colcon test command."
-				},
-				"colcon.testResultArgs": {
-					"type": "array",
-					"items": "string",
-					"default": ["--verbose"],
-					"scope": "resource",
-					"description": "Arguments that are passed to colcon test-result command."
-				},
-				"colcon.cleanCommand": {
-					"type": "string",
-					"default": "rm",
-					"scope": "resource",
-					"description": "Command that is used to clean workspace."
-				},
-				"colcon.cleanArgs": {
-					"type": "array",
-					"items": "string",
-					"default": ["-r", "--verbose", "build", "install"],
-					"scope": "resource",
-					"description": "Arguments that are passed to clean command."
-				},
-				"colcon.runCommand": {
-					"type": "string",
-					"default": "/opt/ros/dashing/bin/ros2",
-					"scope": "resource",
-					"description": "Command that is used to launch project."
-				},
-				"colcon.runArgs": {
-					"type": "array",
-					"items": "string",
-					"default": ["launch"],
-					"scope": "resource",
-					"description": "Arguments that are passed to run command."
-				},
-				"colcon.runFile": {
-					"type": "string",
-					"scope": "resource",
-					"description": "File that is launched by run command (passed after `runArgs`)"
-				},
-				"colcon.runFileArgs": {
-					"type": "array",
-					"items": "string",
-					"default": [],
-					"scope": "resource",
-					"description": "Arguments that are passed to file in run command (passed after `runFile`)."
+					"colcon.env": {
+						"type": "string",
+						"default": ".vscode/colcon.env",
+						"scope": "resource",
+						"description": "Path to file where colcon environment variables are listed. This file is auto-generated."
+					},
+					"colcon.globalSetup": {
+						"type": "array",
+						"items": "string",
+						"scope": "resource",
+						"default": [
+							"/opt/ros/dashing/setup.sh"
+						],
+						"description": "List of paths setup files of workspaces that is common among all of your repositories, like ROS's `setup.sh`."
+					},
+					"colcon.workspaceSetup": {
+						"type": "array",
+						"items": "string",
+						"default": [
+							"install/setup.sh"
+						],
+						"scope": "resource",
+						"description": "List of paths to colcon workspaces files. You may list any number of workspaces as well as arbitrary files you want to source, like `~/.bashrc`."
+					},
+					"colcon.colconCwd": {
+						"type": "string",
+						"default": "${workspaceFolder}",
+						"scope": "resource",
+						"description": "Folder, in which colcon commands are launched."
+					},
+					"colcon.defaultEnvironment": {
+						"type": "object",
+						"properties": {
+							"key": "string",
+							"value": "string"
+						},
+						"default": {},
+						"scope": "resource",
+						"description": "Predefined environments"
+					},
+					"colcon.refreshOnStart": {
+						"type": "boolean",
+						"default": true,
+						"scope": "window",
+						"description": "Refresh colcon modules configuration on application start."
+					},
+					"colcon.refreshOnTasksOpened": {
+						"type": "boolean",
+						"default": false,
+						"scope": "window",
+						"description": "Refresh colcon modules configuration on tasks request."
+					},
+					"colcon.refreshOnConfigurationChanged": {
+						"type": "boolean",
+						"default": false,
+						"scope": "window",
+						"description": "Refresh colcon modules configuration if Colcon Helper configuration is changed. It is still possible to update environment on command run."
+					},
+					"colcon.outputLog": {
+						"type": "boolean",
+						"default": false,
+						"scope": "window",
+						"description": "Print debug messages to extension log. If false, outputLevel property is ignored."
+					},
+					"colcon.outputLevel": {
+						"type": "string",
+						"default": "error",
+						"scope": "window",
+						"enum": [
+							"info",
+							"warning",
+							"error",
+							"none"
+						],
+						"enumDescriptions": [
+							"All messages, including common information and debug messages",
+							"Warning and error messages",
+							"Only error messages",
+							"No output at all"
+						],
+						"description": "Select output level."
+					},
+					"colcon.buildArgs": {
+						"type": "array",
+						"items": "string",
+						"default": [
+							"--symlink-install"
+						],
+						"scope": "resource",
+						"description": "Arguments that are passed to colcon build command."
+					},
+					"colcon.testArgs": {
+						"type": "array",
+						"items": "string",
+						"default": [],
+						"scope": "resource",
+						"description": "Arguments that are passed to colcon test command."
+					},
+					"colcon.testResultArgs": {
+						"type": "array",
+						"items": "string",
+						"default": [
+							"--verbose"
+						],
+						"scope": "resource",
+						"description": "Arguments that are passed to colcon test-result command."
+					},
+					"colcon.cleanCommand": {
+						"type": "string",
+						"default": "rm",
+						"scope": "resource",
+						"description": "Command that is used to clean workspace."
+					},
+					"colcon.cleanArgs": {
+						"type": "array",
+						"items": "string",
+						"default": [
+							"-r",
+							"--verbose",
+							"build",
+							"install"
+						],
+						"scope": "resource",
+						"description": "Arguments that are passed to clean command."
+					},
+					"colcon.runCommand": {
+						"type": "string",
+						"default": "/opt/ros/dashing/bin/ros2",
+						"scope": "resource",
+						"description": "Command that is used to launch project."
+					},
+					"colcon.runArgs": {
+						"type": "array",
+						"items": "string",
+						"default": [
+							"launch"
+						],
+						"scope": "resource",
+						"description": "Arguments that are passed to run command."
+					},
+					"colcon.runFile": {
+						"type": "string",
+						"scope": "resource",
+						"description": "File that is launched by run command (passed after `runArgs`)"
+					},
+					"colcon.runFileArgs": {
+						"type": "array",
+						"items": "string",
+						"default": [],
+						"scope": "resource",
+						"description": "Arguments that are passed to file in run command (passed after `runFile`)."
+					}
 				}
 			}
-		}],
+		],
 		"taskDefinitions": [
 			{
 				"type": "colcon",
@@ -234,19 +251,21 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+		"pretest": "npm run compile",
+		"test": "node ./out/test/runTest.js"
 	},
-	"dependencies":{
+	"dependencies": {
 		"dotenv": "^8.0.0"
 	},
 	"devDependencies": {
-		"dotenv": "8.0.0",
 		"typescript": "^3.3.1",
-		"vscode": "^1.1.28",
 		"tslint": "^5.12.1",
+		"glob": "^7.1.4",
+		"@types/vscode": "^1.40.0",
 		"@types/node": "^10.12.21",
-		"@types/mocha": "^2.2.42",
-		"@types/dotenv": "^6.1.1"
+		"@types/mocha": "^5.2.6",
+		"@types/dotenv": "^6.1.1",
+		"@types/glob": "^7.1.1",
+		"vscode-test": "^1.2.0"
 	}
 }

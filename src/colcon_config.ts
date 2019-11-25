@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { colcon_ns, extName } from './common';
-import { config } from 'dotenv';
 
 const envProperty = "env";
 const globalSetupProperty = "globalSetup";

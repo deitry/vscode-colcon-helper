@@ -20,7 +20,13 @@ const taskPresentation: vscode.TaskPresentationOptions = {
 };
 
 export function getBuildTaskForPackage(packageName: string | string[]): vscode.Task | undefined {
-    if (config.buildArgs.includes('--packages-select')) {
+    let packagesSelected = false;
+
+    config.buildArgs.forEach(element => {
+        if (element.includes('--packages-select')) packagesSelected = true;
+    });
+
+    if (packagesSelected) {
         // FIXME: in case of build-current we must not just concat packages-select, but replace if it is already exist
         config.error('Cannot add build task for current package, because there is already `--packages-select` option.');
     } else {
@@ -112,8 +118,13 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
                 // get path relative to wsFolder, because absolute paths somehow could not be treaten by ros2 launch
                 let basename = '.' + fileName.substr(wsFolder.uri.fsPath.length);
                 let currentRunArgs = ['launch'];
+                let hasDebug = false;
 
-                if (config.runArgs.includes('--debug')) currentRunArgs = currentRunArgs.concat('--debug');
+                config.runArgs.forEach(element => {
+                    if (element.includes('--debug')) hasDebug = true;
+                });
+
+                if (hasDebug) currentRunArgs = currentRunArgs.concat('--debug');
                 currentRunArgs = currentRunArgs.concat(basename).concat(config.runFileArgs);
 
                 pushIfNotUndefined(makeTask(config.runCommand, `launch '${basename}'`, currentRunArgs));
