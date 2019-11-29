@@ -2,6 +2,11 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [0.1.2]
+
+- No need to choose workspace folder if there is only one.
+- Do not show error if there is no opened folders at all.
+
 ## [0.1.1]
 
 - Updated manifest

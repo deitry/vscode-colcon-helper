@@ -3,7 +3,7 @@
 	"displayName": "Colcon Helper",
 	"publisher": "deitry",
 	"description": "Adds tasks that are specific to colcon workspaces",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"icon": "images/icon.png",
 	"homepage": "https://colcon.readthedocs.io",
 	"license": "MIT",
