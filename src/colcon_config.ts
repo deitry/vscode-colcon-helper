@@ -107,7 +107,7 @@ export class Config {
         // deduce current workspace folder
         if (vscode.workspace.workspaceFolders == undefined) {
             let msg = "Can't find workspace";
-            this.error(msg);
+            this.warn(msg);
             // should I throw error or try to softely disable extension?
             // Since this is important setting we want it to be correctly set up
             // TODO: handle in catch?

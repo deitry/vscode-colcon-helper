@@ -62,6 +62,12 @@ export function actualizeConfig(folder: vscode.WorkspaceFolder | undefined = und
 
 export function activate(context: vscode.ExtensionContext) {
 
+	if (vscode.workspace.workspaceFolders == undefined) {
+		// Assume that it is not error if there is no workspace at all.
+		if (config) config.warn("Can't find workspace");
+		return;
+	}
+
 	config = new Config();
 	config.log(extName + " extension is about to launch");
 
