@@ -40,6 +40,23 @@ function getCurrentWsFolder(): vscode.WorkspaceFolder | undefined {
 }
 
 async function getWorkspaceFolder(forceAsk: boolean = false): Promise<vscode.WorkspaceFolder | undefined> {
+	let folder = await getWorkspaceFolderImpl(forceAsk);
+	// update packages list for this folder
+	if (folder && !(folder.name in packages))
+	{
+		updatePackageList(folder);
+	}
+	return folder;
+}
+
+async function getWorkspaceFolderImpl(forceAsk: boolean = false): Promise<vscode.WorkspaceFolder | undefined> {
+	let folderList = vscode.workspace.workspaceFolders;
+	if (folderList) {
+		if (folderList.length == 1) {
+			let folder = folderList[0];
+			return folder;
+		}
+	}
 
 	let currentWsFolder: vscode.WorkspaceFolder | undefined;
 	if (!forceAsk) {
@@ -48,10 +65,6 @@ async function getWorkspaceFolder(forceAsk: boolean = false): Promise<vscode.Wor
 	}
 
 	currentWsFolder = await vscode.window.showWorkspaceFolderPick();
-	if (currentWsFolder && !(currentWsFolder.name in packages))
-	{
-		updatePackageList(currentWsFolder);
-	}
 	return currentWsFolder;
 }
 
@@ -141,6 +154,8 @@ export function activate(context: vscode.ExtensionContext) {
 		actualizeConfig(folder);
 
 		if (folder) {
+			if (!packages[folder.name]) updatePackageList(folder)
+
 			vscode.window.showQuickPick(packages[folder.name])
 				.then((selectedPackage) => {
 

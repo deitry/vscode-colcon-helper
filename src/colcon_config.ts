@@ -63,7 +63,7 @@ export class Config {
     constructor(wsFolder: vscode.WorkspaceFolder | undefined = undefined) {
 
         // separate workspace and document configs to avoid warnings
-        let wsConf = vscode.workspace.getConfiguration(colcon_ns);
+        let wsConf = vscode.workspace.getConfiguration(colcon_ns, null);
         // Provide configuration for current document if it is possible
         let resConf = (wsFolder)
             ? vscode.workspace.getConfiguration(colcon_ns, wsFolder.uri)
