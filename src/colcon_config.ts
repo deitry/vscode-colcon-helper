@@ -202,9 +202,10 @@ export class Config {
         }
     }
 
+    // cwd argument must be string since we could pass arbitrary string path through configs
     resolvePath(fileName: string, cwd: string | undefined = undefined) {
         let result = fileName;
-        let actualCwd: string = cwd ? cwd : this.currentWsFolder.uri.path;
+        let actualCwd: string = cwd || this.currentWsFolder.uri.path;
 
         // replace common VS Code substitution variable
         if (actualCwd != "") {

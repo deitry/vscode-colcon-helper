@@ -2,6 +2,10 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [0.1.3]
+
+- Relative path resolve for new version of `colcon list` output
+
 ## [0.1.2]
 
 - No need to choose workspace folder if there is only one.

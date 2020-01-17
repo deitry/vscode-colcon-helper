@@ -26,10 +26,14 @@ export function getAllPackages(folder: vscode.WorkspaceFolder): PackageInfo[] {
     let packages: PackageInfo[] = [];
 
     // raw `colcon list` command returns list in format 'name \t path \t buildSystem'
+    // new version of colcon returns relative path so we must resolve it as asbolute
     packagesRaw.forEach(entry => {
         let packageInfoStrs = entry.split('\t');
         if (packageInfoStrs.length >= 3)
-            packages.push(new PackageInfo(packageInfoStrs[0], packageInfoStrs[1], packageInfoStrs[2]));
+            packages.push(new PackageInfo(
+                packageInfoStrs[0],
+                config.resolvePath(packageInfoStrs[1], folder.uri.path),
+                packageInfoStrs[2]));
     });
 
     return packages;

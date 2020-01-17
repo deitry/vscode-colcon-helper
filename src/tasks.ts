@@ -31,7 +31,7 @@ export function getBuildTaskForPackage(packageName: string | string[]): vscode.T
         config.error('Cannot add build task for current package, because there is already `--packages-select` option.');
     } else {
 
-        let descriptor = typeof(packageName) == 'string' ? `'${packageName}'` : 'selected';
+        let descriptor = typeof (packageName) == 'string' ? `'${packageName}'` : 'selected';
 
         return makeColconTask(
             `build ${descriptor}`,
@@ -104,10 +104,14 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
     if (active) {
         if (wsFolder.name in packages) {
             packages[wsFolder.name].forEach(pkg => {
-                if (active && pkg.path != '' && active.document.uri.path.startsWith(pkg.path)) {
+                if (active
+                    && pkg.path != ''
+                    && active.document.uri.path.startsWith(config.resolvePath(pkg.path, wsFolder.uri.path))) {
+                    // FIXME: startsWith is not the best option, but uri.path is just a string.
+                    // Pkg path should be already absolute at the moment, but checking anyway.
 
-                        config.log('check ' + pkg.path);
-                        pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
+                    config.log('check ' + pkg.path);
+                    pushIfNotUndefined(getBuildTaskForPackage(pkg.name));
                 }
             });
         }
