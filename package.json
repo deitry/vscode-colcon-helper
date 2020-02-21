@@ -1,9 +1,9 @@
 {
 	"name": "colcon-helper",
-	"displayName": "Colcon Helper",
+	"displayName": "Colcon Tasks",
 	"publisher": "deitry",
-	"description": "Adds tasks that are specific to colcon workspaces",
-	"version": "0.1.3",
+	"description": "Provides tasks for `colcon` command-line tool",
+	"version": "0.2.0",
 	"icon": "images/icon.png",
 	"homepage": "https://colcon.readthedocs.io",
 	"license": "MIT",
@@ -50,6 +50,14 @@
 	"contributes": {
 		"commands": [
 			{
+				"command": "colcon.enableTasks",
+				"title": "Colcon: Enable Tasks for Current Workspace"
+			},
+			{
+				"command": "colcon.disableTasks",
+				"title": "Colcon: Disable Tasks for Current Workspace"
+			},
+			{
 				"command": "colcon.refreshEnvironment",
 				"title": "Colcon: Refresh Environment"
 			},
@@ -90,9 +98,7 @@
 						"type": "array",
 						"items": "string",
 						"scope": "resource",
-						"default": [
-							"/opt/ros/dashing/setup.sh"
-						],
+						"default": [],
 						"description": "List of paths setup files of workspaces that is common among all of your repositories, like ROS's `setup.sh`."
 					},
 					"colcon.workspaceSetup": {

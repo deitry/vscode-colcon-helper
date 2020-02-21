@@ -2,17 +2,19 @@ import * as vscode from 'vscode';
 
 import { Config } from './colcon_config'
 import { refreshEnvironment } from "./environment"
-import { getColconTasks, getBuildTaskForPackage } from './tasks';
+import { getColconTasks, getBuildTaskForPackage, ColconTaskDefinition } from './tasks';
 import { extName, colcon_ns } from './common';
 import { PackageInfo, getAllPackages } from './packages';
 
+const enableCmdName = 'enableTasks';
+const disableCmdName = 'disableTasks';
 const refreshCmdName = 'refreshEnvironment';
 const refreshPackageList = 'refreshPackageList';
 const buildCurrentPkgCmdName = 'buildCurrentPackage';
 const buildSinglePkgCmdName = 'buildSinglePackage';
 const buildPkgCmdName = 'buildSelectedPackages';
 
-export let packages: { [id: string] : PackageInfo[]; } = {};
+export let packages: { [id: string]: PackageInfo[]; } = {};
 export let config: Config;
 
 export function updatePackageList(folder: vscode.WorkspaceFolder | undefined = undefined): boolean {
@@ -42,8 +44,7 @@ function getCurrentWsFolder(): vscode.WorkspaceFolder | undefined {
 async function getWorkspaceFolder(forceAsk: boolean = false): Promise<vscode.WorkspaceFolder | undefined> {
 	let folder = await getWorkspaceFolderImpl(forceAsk);
 	// update packages list for this folder
-	if (folder && !(folder.name in packages))
-	{
+	if (folder && !(folder.name in packages)) {
 		updatePackageList(folder);
 	}
 	return folder;
@@ -87,12 +88,33 @@ export function activate(context: vscode.ExtensionContext) {
 	let onChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor((e: vscode.TextEditor | undefined) => {
 		if (e) {
 			let wsFolder = vscode.workspace.getWorkspaceFolder(e.document.uri);
-			if (wsFolder && !(wsFolder.name in packages))
-			{
+			if (wsFolder && !(wsFolder.name in packages)) {
 				updatePackageList(wsFolder);
 			}
 		}
 	});
+
+	let onEnableCmd = vscode.commands.registerCommand(`${colcon_ns}.${enableCmdName}`,
+		async () => {
+			let folder = await getWorkspaceFolder(false);
+			if (!folder) {
+				config.error('No workspace folder provided!');
+				return;
+			}
+			actualizeConfig(folder);
+			config.enableTasks();
+		});
+
+	let onDisableCmd = vscode.commands.registerCommand(`${colcon_ns}.${disableCmdName}`,
+		async () => {
+			let folder = await getWorkspaceFolder(false);
+			if (!folder) {
+				config.error('No workspace folder provided!');
+				return;
+			}
+			actualizeConfig(folder);
+			config.disableTasks();
+		});
 
 	let onRefreshCmd = vscode.commands.registerCommand(colcon_ns + "." + refreshCmdName, async () => {
 		let folder = await getWorkspaceFolder();
@@ -122,8 +144,14 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		actualizeConfig(folder);
+		let pkgList = packages[folder.name];
 
-		packages[folder.name].forEach(pkg => {
+		if (!pkgList || pkgList.length == 0) {
+			config.error('Did not find packages for current workspace folder');
+			return;
+		}
+
+		pkgList.forEach(pkg => {
 			if (vscode.window.activeTextEditor
 				&& pkg.path != ''
 				&& vscode.window.activeTextEditor.document.uri.path.startsWith(pkg.path)) {
@@ -194,8 +222,18 @@ export function activate(context: vscode.ExtensionContext) {
 			return taskList;
 		},
 
-		resolveTask(_task: vscode.Task): vscode.Task | undefined {
-			if (config) config.log("Resolve tasks called");
+		resolveTask(_task: vscode.Task) {
+			if (_task.definition.type == colcon_ns) {
+				// TODO drop somehow instead of getting warning popup?
+				// https://code.visualstudio.com/api/extension-guides/task-provider
+				const definition: ColconTaskDefinition = <any>_task.definition;
+
+				// TODO: _actually_ resove tasks that are in tasks.json?
+				return new vscode.Task(
+					definition, _task.scope ? _task.scope : vscode.TaskScope.Workspace, definition.task, definition.type, new vscode.ShellExecution("echo 'Drop task because `colcon.provideTasks` is set to `false`'"), []
+				);
+			}
+
 			return undefined;
 		}
 	});
@@ -207,6 +245,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// setupExtension(context);
 
+	context.subscriptions.push(onEnableCmd);
+	context.subscriptions.push(onDisableCmd);
 	context.subscriptions.push(onRefreshCmd);
 	context.subscriptions.push(onRefreshListCmd);
 	context.subscriptions.push(buildCurrentCmd);
@@ -219,3 +259,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 	config.log(extName + " extension is activated");
 }
+
+export function deactivate() { }

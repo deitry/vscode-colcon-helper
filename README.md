@@ -1,4 +1,37 @@
-# Colcon Helper
+# Colcon
+
+Extension is intended to simplify use of `colcon` command line tool.
+
+It provides tasks for `colcon` workspace and automatically run setup scripts in order to correctly adjust environment.
+
+## How to use
+
+1. Enable tasks by running command `Colcon: Enable Tasks for current Workspace` or manually set `colcon.provideTasks` to `true`.
+2. If default options doesn't suit your workspace, you may configure `colcon.globalSetup` and `colcon.workspaceSetup` lists of `setup` files.
+3. Run `Colcon: Refresh Environment` command to complete environment set up for your workspace.
+4. Now open yout task list and run any task you want!
+
+### Available tasks
+
+Tasks provided at the moment:
+
+Workspace level:
+- `colcon: build`
+    Do exactly the same as command-line `colcon build`
+- `colcon: test`
+- `colcon: test-results`
+    similarily to `build`
+- `colcon: clean` that is simple call to `rm -f build install`
+
+Two tasks specially for current editor:
+- `colcon: build <current package>` - like
+- `colcon: launch <current file.launch.py>` that is by default calls `ros2 launch ./<current file>` command
+
+First three commands use `colcon` as executable being launched, yet the last two could be configured with `colcon.runCommand` and `colcon.cleanCommand` settings.
+
+By default tasks are runned using corresponding workspace folder as working directory but this could be configured via `colcon.colconCwd` option.
+
+## Colcon tool
 
 `colcon` (_COLlective CONstruction_) is the command line tool that is known as default build system for ROS2. It may be used as build tool for literally any project (but as far as I know only CMake and Python `setuptools` are supported directly).
 
@@ -6,7 +39,6 @@
 - ROS2 overview page: https://index.ros.org/doc/ros2/
 - Building ROS2 packages with `colcon`: https://index.ros.org//doc/ros2/Tutorials/Colcon-Tutorial/
 
-This VS Code extension provides tasks for colcon workspace and automatically run colcon setup scripts in order to correctly adjust environment.
 
 ### A little bit on workspaces
 
@@ -32,7 +64,7 @@ By default there is only `/opt/ros/dashing/setup.sh` in the `globalSetup` and `i
 
 ---
 
-## How to use
+## More info about extension
 
 ### Enabling extension
 
@@ -41,19 +73,6 @@ By default extension do nothing until you explicitly set `"colcon.provideTasks":
 After you set `provideTask` option, you will get `colcon` tasks in the task list based on the default settings. Tasks are collected only for workspace folder that is parent to document in current editor.
 
 There may be no tasks if you open task list for document outside your workspace, yet there may be tasks for all of your workspace folders if there is no current editor.
-
-### Available tasks
-
-There are five tasks provided at the moment:
-- `colcon: build` that is call to command-line `colcon build`
-- `colcon: test` and
-- `colcon: test-results` - similarily to `build`
-- `colcon: run` that is by default calls `ros2 launch` command
-- `colcon: clean` that is simple call to `rm -f build install`
-
-First three commands use `colcon` as executable being launched, yet the last two could be configured with `colcon.runCommand` and `colcon.cleanCommand` settings.
-
-By default tasks are runned using corresponding workspace folder as working directory but this could be configured via `colcon.colconCwd` option.
 
 ### `Refresh colcon environment` command
 
@@ -70,18 +89,10 @@ NOTE that this command may run automatically if either of `colcon.refreshOnStart
 Each command has corresponding `args` setting like `colcon.buildArgs`. These args are inserted right after
 the command. In the case of `build` the default value is `['--symlink-install']` (more on argument meaning see `colcon` documentation or `--help` page).
 
-Yet the `run` command is more configurable due to the semantics. It is composed of:
-- `runCommand`
-- `runArgs`
-- `runFile`
-- `runFileArgs`
-
-in this exact order. Subsequentely each setting could be changed independentely that leads to better settings structure and flexibility. Example of resulting command:
-- `ros2 launch ./main.launch.py model_name:=my_robot`
-    - `ros2` = runCommand
-    - `launch` = runArgs
-    - `./main.launch.py` = runFile
-    - `model_name:=my_robot` = runFileArgs
+If you open `*.launch.py` file, you'll get `colcon: launch` command which actually have no relation to `colcon`, but is very useful for ROS2 workspaces. It launches
+- `ros2 launch *.launch.py`
+    - `ros2` = could be configured with `colcon.runCommand` option
+    - `launch` = could be configured with `colcon.runArgs`
 
 ### Chaining tasks
 

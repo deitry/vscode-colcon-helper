@@ -19,6 +19,17 @@ const taskPresentation: vscode.TaskPresentationOptions = {
     echo: true
 };
 
+export class ColconTaskDefinition {
+    type: string = colcon_ns;
+    task: string;
+    name: string;
+
+    constructor(task: string) {
+        this.name = task;
+        this.task = task;
+    }
+}
+
 export function getBuildTaskForPackage(packageName: string | string[]): vscode.Task | undefined {
     let packagesSelected = false;
 
@@ -51,12 +62,13 @@ let makeTask = (
 ) => {
     let localArgs = args;
     config.log("Making task: " + task);
-    config.log(executable + " " + localArgs.join(' '));
+    let fullCmd = executable + " " + localArgs.join(' ');
+    config.log(fullCmd);
 
     let taskOptions = colconOptions;
 
     let newTask = new vscode.Task(
-        { type: colcon_ns, task: task, group: group },
+        new ColconTaskDefinition(task),
         config.currentWsFolder,
         task,
         colcon_ns,
@@ -65,6 +77,7 @@ let makeTask = (
     );
 
     newTask.presentationOptions = taskPresentation;
+    newTask.group = group;
     return newTask;
 }
 
@@ -102,6 +115,9 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
 
     let active = vscode.window.activeTextEditor;
     if (active) {
+        // For active editor we try to add `build current package` and `run current launch file`
+
+        // build current package
         if (wsFolder.name in packages) {
             packages[wsFolder.name].forEach(pkg => {
                 if (active
@@ -116,6 +132,7 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
             });
         }
 
+        // run current launch file
         if (active.document.uri.path.endsWith('.launch.py')) {
             let fileName = active.document.fileName;
             if (fileName.startsWith(wsFolder.uri.fsPath)) {

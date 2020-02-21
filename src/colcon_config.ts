@@ -32,6 +32,11 @@ enum OutputLevel {
 // in order to keep the same channel if config will be overwritten
 let outputChannel: vscode.OutputChannel | undefined = undefined;
 
+interface LogOptions {
+    forcePopup?: boolean;
+    forceConsole?: boolean;
+}
+
 export class Config {
     env: string;
     globalSetup: string[] = [];
@@ -59,39 +64,30 @@ export class Config {
     runFileArgs: string[];
 
     shell: string;
+    wsConf: vscode.WorkspaceConfiguration;
+    resConf: vscode.WorkspaceConfiguration;
 
     constructor(wsFolder: vscode.WorkspaceFolder | undefined = undefined) {
 
         // separate workspace and document configs to avoid warnings
-        let wsConf = vscode.workspace.getConfiguration(colcon_ns, null);
+        this.wsConf = vscode.workspace.getConfiguration(colcon_ns, null);
         // Provide configuration for current document if it is possible
-        let resConf = (wsFolder)
+        this.resConf = (wsFolder)
             ? vscode.workspace.getConfiguration(colcon_ns, wsFolder.uri)
             : ((vscode.window.activeTextEditor)
                 ? vscode.workspace.getConfiguration(colcon_ns, vscode.window.activeTextEditor.document.uri)
-                : wsConf);
+                : this.wsConf);
 
-        let updateIfNotExist = function (property: string, value: any, target: vscode.ConfigurationTarget) {
-            // TODO: ask if user wants to create this settings
-            let propertyConf = wsConf.inspect(property);
-            if (propertyConf != undefined
-                && propertyConf.globalValue == undefined
-                && propertyConf.workspaceValue == undefined
-                && propertyConf.workspaceFolderValue == undefined) {
-                wsConf.update(property, value, target);
-            }
-        };
-
-        if (!wsConf)
+        if (!this.wsConf)
             throw new Error("Missed colcon configuration");
 
-        this.provideTasks = resConf.get(provideTasksProperty, false);
-        this.debugLog = wsConf.get(debugLogProperty, false);
+        this.provideTasks = this.resConf.get(provideTasksProperty, false);
+        this.debugLog = this.wsConf.get(debugLogProperty, false);
 
         if (this.debugLog && outputChannel == undefined)
             outputChannel = vscode.window.createOutputChannel(extName);
 
-        let outputLevelStr = wsConf.get(outputLevelProperty, "error");
+        let outputLevelStr = this.wsConf.get(outputLevelProperty, "error");
 
         if (this.debugLog) {
             switch (outputLevelStr) {
@@ -120,43 +116,39 @@ export class Config {
         this.currentWsFolder = (wsFolder) ? wsFolder : vscode.workspace.workspaceFolders[0];
         this.log("Current workspace dir: " + this.currentWsFolder.uri.path);
 
-        this.colconCwd = resConf.get(colconCwdProperty, "${workspaceFolder}");
+        this.colconCwd = this.resConf.get(colconCwdProperty, "${workspaceFolder}");
 
         if (!this.colconCwd.startsWith("/")) {
             this.colconCwd = this.resolvePath(this.colconCwd);
         }
 
         // use concat to handle both string and array values
-        this.globalSetup = [].concat(resConf.get(globalSetupProperty, []));
-        this.workspaceSetup = [].concat(resConf.get(workspaceSetupProperty, []));
+        this.globalSetup = [].concat(this.resConf.get(globalSetupProperty, []));
+        this.workspaceSetup = [].concat(this.resConf.get(workspaceSetupProperty, []));
 
         if (this.provideTasks) {
-            updateIfNotExist(globalSetupProperty, this.globalSetup, vscode.ConfigurationTarget.Global);
-            // store workspaceSetup setting before we resolve it to absolute path
-            // updateIfNotExist(workspaceSetupProperty, this.workspaceSetup);
+            // if there is no workspace setup
+            this.updateIfNotExist(workspaceSetupProperty, this.workspaceSetup, vscode.ConfigurationTarget.WorkspaceFolder);
         }
 
-        this.env = this.resolvePath(resConf.get(envProperty, ".vscode/colcon.env"));
+        this.env = this.resolvePath(this.resConf.get(envProperty, ".vscode/colcon.env"));
 
-        this.refreshOnStart = wsConf.get(refreshOnStartProperty, true);
-        this.refreshOnTasksOpened = wsConf.get(refreshOnTasksOpenedProperty, false);
-        this.refreshOnConfigurationChanged = wsConf.get(refreshOnConfigurationChangedProperty, false);
+        this.refreshOnStart = this.wsConf.get(refreshOnStartProperty, true);
+        this.refreshOnTasksOpened = this.wsConf.get(refreshOnTasksOpenedProperty, false);
+        this.refreshOnConfigurationChanged = this.wsConf.get(refreshOnConfigurationChangedProperty, false);
 
-        this.buildArgs = resConf.get(buildArgsProperty, []);
-        this.testArgs = resConf.get(testArgsProperty, []);
-        this.testResultArgs = resConf.get(testResultArgsProperty, []);
-        this.cleanCommand = resConf.get(cleanCommandProperty, "");
-        this.cleanArgs = resConf.get(cleanArgsProperty, []);
-        this.cleanCommand = resConf.get(cleanCommandProperty, "");
-        this.cleanArgs = resConf.get(cleanArgsProperty, []);
-        this.runCommand = resConf.get(runCommandProperty, "");
-        this.runArgs = resConf.get(runArgsProperty, []);
-        this.runFile = resConf.get(runFileProperty, "");
-        this.runFileArgs = resConf.get(runFileArgsProperty, []);
-        if (this.provideTasks) {
-            updateIfNotExist(runFileProperty, this.runFile, vscode.ConfigurationTarget.WorkspaceFolder);
-        }
-        this.defaultEnvs = resConf.get(defaultEnvsProperty, {});
+        this.buildArgs = this.resConf.get(buildArgsProperty, []);
+        this.testArgs = this.resConf.get(testArgsProperty, []);
+        this.testResultArgs = this.resConf.get(testResultArgsProperty, []);
+        this.cleanCommand = this.resConf.get(cleanCommandProperty, "");
+        this.cleanArgs = this.resConf.get(cleanArgsProperty, []);
+        this.cleanCommand = this.resConf.get(cleanCommandProperty, "");
+        this.cleanArgs = this.resConf.get(cleanArgsProperty, []);
+        this.runCommand = this.resConf.get(runCommandProperty, "");
+        this.runArgs = this.resConf.get(runArgsProperty, []);
+        this.runFile = this.resConf.get(runFileProperty, "");
+        this.runFileArgs = this.resConf.get(runFileArgsProperty, []);
+        this.defaultEnvs = this.resConf.get(defaultEnvsProperty, {});
 
         // get integratedTerminal shell setting
         let platform = process.platform;
@@ -171,31 +163,34 @@ export class Config {
 
     // NOTE: forceConsole will be used for extension debug purposes since console.log()
     // can correctly represent objects
-    log(msg: any, forceConsole: boolean = false) {
+    log(msg: any, options?: LogOptions) {
         if (this.outputLevel > OutputLevel.Info) return;
+        if (options && options.forcePopup) vscode.window.showInformationMessage(msg);
 
-        if (forceConsole || outputChannel == undefined) {
+        if ((options && options.forceConsole) || outputChannel == undefined) {
             console.log(extName + ": " + msg);
         } else {
             outputChannel.appendLine(msg);
         }
     }
 
-    warn(msg: any, forceConsole: boolean = false) {
+    warn(msg: any, options?: LogOptions) {
         if (this.outputLevel > OutputLevel.Warning) return;
+        if (options && options.forcePopup) vscode.window.showWarningMessage(msg);
 
-        if (forceConsole || outputChannel == undefined) {
+        if ((options && options.forceConsole) || outputChannel == undefined) {
             console.warn(extName + ": " + msg);
         } else {
             outputChannel.appendLine("warn: " + msg);
         }
     }
 
-    error(msg: any, forceConsole: boolean = false) {
+    error(msg: any, options?: LogOptions) {
+        // show popup anyway
         vscode.window.showErrorMessage(extName + ": " + msg);
         if (this.outputLevel > OutputLevel.Error) return;
 
-        if (forceConsole || outputChannel == undefined) {
+        if ((options && options.forceConsole) || outputChannel == undefined) {
             console.error(extName + ": " + msg);
         } else {
             outputChannel.appendLine("error: " + msg);
@@ -219,4 +214,31 @@ export class Config {
         // if workspace is still empty - not a clue
         return actualCwd + "/" + result;
     }
+
+    enableTasks() {
+        // TODO: ask user and automatically setup ROS version
+        let conf = vscode.workspace.getConfiguration(colcon_ns, this.currentWsFolder.uri);
+        let provideTasks = conf.get(provideTasksProperty, false);
+        conf.update(provideTasksProperty, this.provideTasks = true);
+        this.log(`Tasks detection ${provideTasks ? "already ": ""}enabled`, { forcePopup: true });
+    }
+
+    disableTasks() {
+        let conf = vscode.workspace.getConfiguration(colcon_ns, this.currentWsFolder.uri);
+        let provideTasks = conf.get(provideTasksProperty, false);
+        conf.update(provideTasksProperty, this.provideTasks = false);
+        this.log(`Tasks detection ${provideTasks ? "": "already "}disabled`, { forcePopup: true });
+    }
+
+    private updateIfNotExist(property: string, value: any, target: vscode.ConfigurationTarget) {
+        // TODO: ask if user wants to create this settings
+        let propertyConf = this.wsConf.inspect(property);
+
+        if (propertyConf != undefined
+            && propertyConf.globalValue == undefined
+            && propertyConf.workspaceValue == undefined
+            && propertyConf.workspaceFolderValue == undefined) {
+            this.wsConf.update(property, value, target);
+        }
+    };
 }
