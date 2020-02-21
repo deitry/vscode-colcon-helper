@@ -207,7 +207,7 @@
 					},
 					"colcon.runCommand": {
 						"type": "string",
-						"default": "/opt/ros/dashing/bin/ros2",
+						"default": "ros2",
 						"scope": "resource",
 						"description": "Command that is used to launch project."
 					},
@@ -223,14 +223,16 @@
 					"colcon.runFile": {
 						"type": "string",
 						"scope": "resource",
-						"description": "File that is launched by run command (passed after `runArgs`)"
+						"description": "File that is launched by run command (passed after `runArgs`)",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.runFileArgs": {
 						"type": "array",
 						"items": "string",
 						"default": [],
 						"scope": "resource",
-						"description": "Arguments that are passed to file in run command (passed after `runFile`)."
+						"description": "Arguments that are passed to file in run command (passed after `runFile`).",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					}
 				}
 			}
