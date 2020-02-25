@@ -69,6 +69,8 @@ export class Config {
 
     constructor(wsFolder: vscode.WorkspaceFolder | undefined = undefined) {
 
+        this.shell = this.getCurrentShell();
+
         // separate workspace and document configs to avoid warnings
         this.wsConf = vscode.workspace.getConfiguration(colcon_ns, null);
         // Provide configuration for current document if it is possible
@@ -128,7 +130,11 @@ export class Config {
 
         if (this.provideTasks) {
             // if there is no workspace setup
-            this.updateIfNotExist(workspaceSetupProperty, this.workspaceSetup, vscode.ConfigurationTarget.WorkspaceFolder);
+            this.updateIfNotExist(
+                workspaceSetupProperty,
+                this.resolveShellExtension(this.workspaceSetup),
+                vscode.ConfigurationTarget.WorkspaceFolder
+            );
         }
 
         this.env = this.resolvePath(this.resConf.get(envProperty, ".vscode/colcon.env"));
@@ -149,16 +155,6 @@ export class Config {
         this.runFile = this.resConf.get(runFileProperty, "");
         this.runFileArgs = this.resConf.get(runFileArgsProperty, []);
         this.defaultEnvs = this.resConf.get(defaultEnvsProperty, {});
-
-        // get integratedTerminal shell setting
-        let platform = process.platform;
-        let platformName = "linux";
-        switch (platform) {
-            case "darwin": platformName = "osx"; break;
-            case "win32": platformName = "windows"; break;
-            default: break;
-        }
-        this.shell = vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/zsh");
     }
 
     // NOTE: forceConsole will be used for extension debug purposes since console.log()
@@ -220,25 +216,60 @@ export class Config {
         let conf = vscode.workspace.getConfiguration(colcon_ns, this.currentWsFolder.uri);
         let provideTasks = conf.get(provideTasksProperty, false);
         conf.update(provideTasksProperty, this.provideTasks = true);
-        this.log(`Tasks detection ${provideTasks ? "already ": ""}enabled`, { forcePopup: true });
+        this.log(`Tasks detection ${provideTasks ? "already " : ""}enabled`, { forcePopup: true });
     }
 
     disableTasks() {
         let conf = vscode.workspace.getConfiguration(colcon_ns, this.currentWsFolder.uri);
         let provideTasks = conf.get(provideTasksProperty, false);
         conf.update(provideTasksProperty, this.provideTasks = false);
-        this.log(`Tasks detection ${provideTasks ? "": "already "}disabled`, { forcePopup: true });
+        this.log(`Tasks detection ${provideTasks ? "" : "already "}disabled`, { forcePopup: true });
     }
 
     private updateIfNotExist(property: string, value: any, target: vscode.ConfigurationTarget) {
         // TODO: ask if user wants to create this settings
-        let propertyConf = this.wsConf.inspect(property);
+        let conf = vscode.workspace.getConfiguration(colcon_ns, this.currentWsFolder.uri);
+        let propertyConf = conf.inspect(property);
 
         if (propertyConf != undefined
             && propertyConf.globalValue == undefined
             && propertyConf.workspaceValue == undefined
             && propertyConf.workspaceFolderValue == undefined) {
-            this.wsConf.update(property, value, target);
+
+            console.log("here");
+            conf.update(property, value, target);
         }
     };
+
+    resolveShellExtension(setupList: string[]) {
+        return setupList.map(entry => this.resolveShellExtensionForSingle(entry));
+    }
+
+    resolveShellExtensionForSingle(entry: string) {
+        let neededExt = this.determineShellExtension();
+        let currentExt = entry.split('.').slice(-1).join();
+        if (currentExt === neededExt) return entry;
+        return entry.replace(RegExp(`${currentExt}\$`), neededExt);
+    }
+
+    getCurrentShell() {
+        // get integratedTerminal shell setting
+        let platform = process.platform;
+        let platformName = "linux";
+        switch (platform) {
+            case "darwin": platformName = "osx"; break;
+            case "win32": platformName = "windows"; break;
+            default: break;
+        }
+        return vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/bash");
+    }
+
+    // determine extension name for setup files
+    determineShellExtension() {
+        if (this.shell.endsWith('bash.exe') || this.shell.endsWith('bash')) return 'bash';
+        if (this.shell.endsWith('powershell.exe')) return 'ps1';
+        if (this.shell.endsWith('zsh')) return 'zsh';
+        // default:
+        return "sh";
+    }
 }
