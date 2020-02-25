@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 
 import { Config } from './colcon_config'
 import { refreshEnvironment } from "./environment"
-import { getColconTasks, getBuildTaskForPackage, ColconTaskDefinition } from './tasks';
-import { extName, colcon_ns } from './common';
+import { getBuildTaskForPackage } from './tasks';
+import { extName, colcon_ns, ros2launch } from './common';
 import { PackageInfo, getAllPackages } from './packages';
+import { createColconTaskProvider } from './colcon_task_provider';
+import { createRos2LaunchTaskProvider } from './ros2launch_task_provider';
 
 const enableCmdName = 'enableTasks';
 const disableCmdName = 'disableTasks';
@@ -197,54 +199,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	let taskProvider = vscode.tasks.registerTaskProvider('colcon', {
-		provideTasks: () => {
-			if (config) config.log("Start providing tasks");
-
-			let taskList: vscode.Task[] = [];
-			let makeTasksForFolder = (wsFolder: vscode.WorkspaceFolder) => {
-				config = new Config(wsFolder);
-				taskList = taskList.concat(getColconTasks(wsFolder));
-			}
-
-			let active = vscode.window.activeTextEditor;
-			let activeWsFolder: vscode.WorkspaceFolder | undefined = undefined;
-			if (active) {
-				activeWsFolder = vscode.workspace.getWorkspaceFolder(active.document.uri);
-			}
-
-			if (activeWsFolder) {
-				makeTasksForFolder(activeWsFolder);
-			} else if (vscode.workspace.workspaceFolders) {
-				vscode.workspace.workspaceFolders.forEach(makeTasksForFolder);
-			}
-
-			return taskList;
-		},
-
-		resolveTask(_task: vscode.Task) {
-			if (_task.definition.type == colcon_ns) {
-				// TODO drop somehow instead of getting warning popup?
-				// https://code.visualstudio.com/api/extension-guides/task-provider
-				const definition: ColconTaskDefinition = <any>_task.definition;
-
-				// TODO: _actually_ resove tasks that are in tasks.json?
-				return new vscode.Task(
-					definition, _task.scope ? _task.scope : vscode.TaskScope.Workspace, definition.task, definition.type, new vscode.ShellExecution("echo 'Drop task because `colcon.provideTasks` is set to `false`'"), []
-				);
-			}
-
-			return undefined;
-		}
-	});
-
-	if (config.refreshOnStart && config.provideTasks) {
-		config.log("Refreshing environment on start")
-		refreshEnvironment();
-	}
-
-	// setupExtension(context);
-
 	context.subscriptions.push(onEnableCmd);
 	context.subscriptions.push(onDisableCmd);
 	context.subscriptions.push(onRefreshCmd);
@@ -254,9 +208,14 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(buildSinglePackageCmd);
 	context.subscriptions.push(onChangeActiveTextEditor);
 
-	context.subscriptions.push(taskProvider);
+	context.subscriptions.push(vscode.tasks.registerTaskProvider(colcon_ns, createColconTaskProvider()));
+	context.subscriptions.push(vscode.tasks.registerTaskProvider(ros2launch, createRos2LaunchTaskProvider()));
 	// context.subscriptions.push(onConfigChanged);
 
+	if (config.refreshOnStart && config.provideTasks) {
+		config.log("Refreshing environment on start")
+		refreshEnvironment();
+	}
 	config.log(extName + " extension is activated");
 }
 

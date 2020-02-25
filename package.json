@@ -3,7 +3,7 @@
 	"displayName": "Colcon Tasks",
 	"publisher": "deitry",
 	"description": "Provides tasks for `colcon` command-line tool",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"icon": "images/icon.png",
 	"homepage": "https://colcon.readthedocs.io",
 	"license": "MIT",
@@ -175,14 +175,16 @@
 							"--symlink-install"
 						],
 						"scope": "resource",
-						"description": "Arguments that are passed to colcon build command."
+						"description": "Arguments that are passed to colcon build command.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.testArgs": {
 						"type": "array",
 						"items": "string",
 						"default": [],
 						"scope": "resource",
-						"description": "Arguments that are passed to colcon test command."
+						"description": "Arguments that are passed to colcon test command.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.testResultArgs": {
 						"type": "array",
@@ -191,13 +193,15 @@
 							"--verbose"
 						],
 						"scope": "resource",
-						"description": "Arguments that are passed to colcon test-result command."
+						"description": "Arguments that are passed to colcon test-result command.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.cleanCommand": {
 						"type": "string",
 						"default": "rm",
 						"scope": "resource",
-						"description": "Command that is used to clean workspace."
+						"description": "Command that is used to clean workspace.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.cleanArgs": {
 						"type": "array",
@@ -209,13 +213,15 @@
 							"install"
 						],
 						"scope": "resource",
-						"description": "Arguments that are passed to clean command."
+						"description": "Arguments that are passed to clean command.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.runCommand": {
 						"type": "string",
 						"default": "ros2",
 						"scope": "resource",
-						"description": "Command that is used to launch project."
+						"description": "Command that is used to launch project.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.runArgs": {
 						"type": "array",
@@ -224,7 +230,8 @@
 							"launch"
 						],
 						"scope": "resource",
-						"description": "Arguments that are passed to run command."
+						"description": "Arguments that are passed to run command.",
+						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
 					},
 					"colcon.runFile": {
 						"type": "string",
@@ -264,10 +271,63 @@
 		"taskDefinitions": [
 			{
 				"type": "colcon",
+				"required": [
+					"task"
+				],
 				"properties": {
 					"task": {
 						"type": "string",
+						"enum": [
+							"build",
+							"test",
+							"test-result",
+							"custom",
+							"clean"
+						],
 						"description": "Subcommand for colcon"
+					},
+					"command": {
+						"type": "string",
+						"description": "Command for custom command execution"
+					},
+					"args": {
+						"type": "array",
+						"description": "additionalArgs"
+					}
+				}
+			},
+			{
+				"type": "ros2 launch",
+				"required": [
+					"file"
+				],
+				"properties": {
+					"commmand": {
+						"type": "string",
+						"default": "ros2",
+						"description": "Launch command"
+					},
+					"launchArgs": {
+						"type": "array",
+						"default": [
+							"launch"
+						],
+						"description": "Arguments that are passed to launch command"
+					},
+					"rosPackage": {
+						"type": "string",
+						"default": "",
+						"description": "Package which contains file"
+					},
+					"file": {
+						"type": "string",
+						"default": "",
+						"description": "File that is going to be launched. Must be full relative path if rosPackage is not set."
+					},
+					"runFileArgs": {
+						"type": "array",
+						"default": [],
+						"description": "Arguments that are passed to file"
 					}
 				}
 			}
