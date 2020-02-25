@@ -21,6 +21,7 @@ const runArgsProperty = "runArgs";
 const runFileProperty = "runFile";
 const runFileArgsProperty = "runFileArgs";
 const defaultEnvsProperty = "defaultEnvironment";
+const rosInstallPathProperty = "rosInstallPath";
 
 enum OutputLevel {
     Info = 0,
@@ -36,6 +37,15 @@ interface LogOptions {
     forcePopup?: boolean;
     forceConsole?: boolean;
 }
+
+interface version {
+    label: string;
+    code?: string;
+    detail?: string;
+    global?: boolean;
+    // installed?: boolean;
+    description?: string;
+};
 
 export class Config {
     env: string;
@@ -128,15 +138,6 @@ export class Config {
         this.globalSetup = [].concat(this.resConf.get(globalSetupProperty, []));
         this.workspaceSetup = [].concat(this.resConf.get(workspaceSetupProperty, []));
 
-        if (this.provideTasks) {
-            // if there is no workspace setup
-            this.updateIfNotExist(
-                workspaceSetupProperty,
-                this.resolveShellExtension(this.workspaceSetup),
-                vscode.ConfigurationTarget.WorkspaceFolder
-            );
-        }
-
         this.env = this.resolvePath(this.resConf.get(envProperty, ".vscode/colcon.env"));
 
         this.refreshOnStart = this.wsConf.get(refreshOnStartProperty, true);
@@ -204,19 +205,77 @@ export class Config {
         }
 
         // check if fileName is absolute path - it can be so by default or after previous step
-        if (result.startsWith("/")) return result;
+        if (this.getCurrentPlatform() != "windows" && result.startsWith("/")) return result;
 
         // else - consider fileName a relative path
         // if workspace is still empty - not a clue
         return actualCwd + "/" + result;
     }
 
-    enableTasks() {
-        // TODO: ask user and automatically setup ROS version
+    async enableTasks() {
         let conf = vscode.workspace.getConfiguration(colcon_ns, this.currentWsFolder.uri);
         let provideTasks = conf.get(provideTasksProperty, false);
         conf.update(provideTasksProperty, this.provideTasks = true);
+
+        let prop = conf.inspect(workspaceSetupProperty);
+        if (prop && prop.workspaceFolderValue == undefined) {
+            // if there is no workspace folder setup
+
+            // ask user and automatically setup ROS version
+            let rosVersions = this.listRosVersions();
+            let selectedVersion = await vscode.window.showQuickPick(rosVersions);
+            if (!selectedVersion) return;
+
+            if (selectedVersion.label === "Other ..." || !selectedVersion.code) {
+                // letting user to list what they need
+                vscode.commands.executeCommand("workbench.action.openWorkspaceSettings");
+                return;
+            } else {
+                // pushing the right one
+                this.workspaceSetup = [this.resolveRosPath(selectedVersion.code)].concat(this.workspaceSetup);
+            }
+
+            this.updateIfNotExist(
+                workspaceSetupProperty,
+                this.resolveShellExtension(this.workspaceSetup),
+                vscode.ConfigurationTarget.WorkspaceFolder
+            );
+
+            if (!rosVersions.every(entry => !entry.global))
+                this.warn("Selected ROS version differs from that listed in global setup. Please check your configuration.", {forcePopup: true} );
+        }
+
         this.log(`Tasks detection ${provideTasks ? "already " : ""}enabled`, { forcePopup: true });
+    }
+
+    listRosVersions(): version[] {
+        let versions: version[] = [
+            { label: "Dashing Diademata", code: "dashing" },
+            { label: "Eloquent Elusor", code: "eloquent" },
+            { label: "Foxy Fitzroy", code: "foxy", description: "experimental" },
+            { label: "Configure ...", detail: "open `settings.json`" }
+        ];
+
+        versions.forEach(version => {
+            // mark version if it present in globalSetup
+            this.globalSetup.forEach(globalEntry => {
+                if (version.code && globalEntry.includes(version.code)) {
+                    version.global = true;
+                    version.description = [version.description].concat("global").join(' ');
+                }
+            });
+
+            // TODO: mark versions listed in `rosInstallPath` as installed
+        });
+
+        return versions;
+    }
+
+    resolveRosPath(rosVersion: string) {
+        return (<string> vscode.workspace
+            .getConfiguration(`${colcon_ns}.${rosInstallPathProperty}`, this.currentWsFolder.uri)
+            .get(this.getCurrentPlatform(), "/opt/ros/${version}/"))
+            .replace("${version}", rosVersion) + 'setup.sh';
     }
 
     disableTasks() {
@@ -236,7 +295,6 @@ export class Config {
             && propertyConf.workspaceValue == undefined
             && propertyConf.workspaceFolderValue == undefined) {
 
-            console.log("here");
             conf.update(property, value, target);
         }
     };
@@ -252,22 +310,26 @@ export class Config {
         return entry.replace(RegExp(`${currentExt}\$`), neededExt);
     }
 
+    getCurrentPlatform() {
+        switch (process.platform) {
+            case "darwin": return "osx";
+            case "win32": return "windows";
+            default: return "linux";
+        }
+    }
+
     getCurrentShell() {
         // get integratedTerminal shell setting
-        let platform = process.platform;
-        let platformName = "linux";
-        switch (platform) {
-            case "darwin": platformName = "osx"; break;
-            case "win32": platformName = "windows"; break;
-            default: break;
-        }
-        return vscode.workspace.getConfiguration("terminal.integrated.shell").get(platformName, "/usr/bin/bash");
+        return vscode.workspace
+            .getConfiguration("terminal.integrated.shell")
+            .get(this.getCurrentPlatform(), "/usr/bin/bash");
     }
 
     // determine extension name for setup files
     determineShellExtension() {
         if (this.shell.endsWith('bash.exe') || this.shell.endsWith('bash')) return 'bash';
         if (this.shell.endsWith('powershell.exe')) return 'ps1';
+        if (this.shell.endsWith('cmd.exe')) return 'bat';
         if (this.shell.endsWith('zsh')) return 'zsh';
         // default:
         return "sh";

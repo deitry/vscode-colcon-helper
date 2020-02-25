@@ -239,6 +239,24 @@
 						"scope": "resource",
 						"description": "Arguments that are passed to file in run command (passed after `runFile`).",
 						"deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
+					},
+					"colcon.rosInstallPath.windows": {
+						"type": "string",
+						"scope": "resource",
+						"description": "ROS2 installation path on Windows platform.",
+						"default": "C:\\dev\\ros2_${version}\\"
+					},
+					"colcon.rosInstallPath.linux": {
+						"type": "string",
+						"scope": "resource",
+						"description": "ROS2 installation path on Linux platform.",
+						"default": "/opt/ros/${version}/"
+					},
+					"colcon.rosInstallPath.osx": {
+						"type": "string",
+						"scope": "resource",
+						"description": "ROS2 installation path on OSX platform.",
+						"default": "~/ros2_${version}/ros2-osx/"
 					}
 				}
 			}

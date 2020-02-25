@@ -4,11 +4,12 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 
 ## [0.2.0]
 
-- Run task (`ros2 launch` by default) and all related configuration options are deprecated in favor of User/Workspace or local level `tasks.json`.
-User/Workspace tasks are available since VS Code 1.42
-- Commands for enabling/disabling task detection for workspace folder
+- Commands for enabling/disabling task detection for workspace folder with QuickPick for target ROS2 version
+- Configuration options `colcon.rosInstallPath.<platform>` for installed ROS2 discovery.
 - Simple task resolver implementation.
 This eleminates warning popup if you have `colcon` tasks defined in your `tasks.json` while `colcon.provideTasks` is set to `false`.
+- Run task (`ros2 launch` by default) and all related configuration options are deprecated in favor of User/Workspace or local level `tasks.json`.
+User/Workspace tasks are available since VS Code 1.42
 - Default `globalSetup` config option is now empty list.
 It is recommended to add global ROS `setup` to your `workspaceSetup` instead, so you can configure several workspaces for different target ROS versions.
 
