@@ -42,6 +42,27 @@ export function getBuildTaskForPackage(packageName: string | string[]): vscode.T
     return undefined;
 }
 
+export function getBuildTaskForPackagesUpTo(packageName: string | string[]): vscode.Task | undefined {
+    let packagesSelected = false;
+
+    config.buildArgs.forEach(element => {
+        if (element.includes('--packages-up-to')) packagesSelected = true;
+    });
+
+    if (packagesSelected) {
+        // FIXME: in case of build-current we must not just concat packages-up-to, but replace if it is already exist
+        config.error('Cannot add build task for current package, because there is already `--packages-up-to` option.');
+    } else {
+
+        let descriptor = typeof (packageName) == 'string' ? `'${packageName}'` : 'selected';
+
+        return makeColconTask(
+            `build ${descriptor}`,
+            [buildCmd].concat(config.buildArgs).concat('--packages-up-to').concat(packageName),
+            vscode.TaskGroup.Build);
+    }
+    return undefined;
+}
 
 // 'Build' single colcon command
 let makeTask = (

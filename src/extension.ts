@@ -14,6 +14,7 @@ const refreshCmdName = 'refreshEnvironment';
 const refreshPackageList = 'refreshPackageList';
 const buildCurrentPkgCmdName = 'buildCurrentPackage';
 const buildSinglePkgCmdName = 'buildSinglePackage';
+const buildPkgsUpToCmdName = 'buildPackagesUpTo';
 const buildPkgCmdName = 'buildSelectedPackages';
 
 export let packages: { [id: string]: PackageInfo[]; } = {};
@@ -199,6 +200,26 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	let buildPackagesUpToCmd = vscode.commands.registerCommand(colcon_ns + "." + buildPkgsUpToCmdName, async () => {
+		let folder = await getWorkspaceFolder(true);
+		actualizeConfig(folder);
+
+		if (folder) {
+			if (!packages[folder.name]) updatePackageList(folder)
+
+			vscode.window.showQuickPick(packages[folder.name])
+				.then((selectedPackage) => {
+
+					if (selectedPackage) {
+						let buildTask = getBuildTaskForPackagesUpTo(selectedPackage.name);
+						if (buildTask) {
+							vscode.tasks.executeTask(buildTask);
+						}
+					}
+				});
+		}
+	});
+
 	context.subscriptions.push(onEnableCmd);
 	context.subscriptions.push(onDisableCmd);
 	context.subscriptions.push(onRefreshCmd);
@@ -206,6 +227,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(buildCurrentCmd);
 	context.subscriptions.push(buildPackageCmd);
 	context.subscriptions.push(buildSinglePackageCmd);
+	context.subscriptions.push(buildPackagesUpToCmd);
 	context.subscriptions.push(onChangeActiveTextEditor);
 
 	context.subscriptions.push(vscode.tasks.registerTaskProvider(colcon_ns, createColconTaskProvider()));

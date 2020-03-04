@@ -3,7 +3,7 @@
 	"displayName": "Colcon Tasks",
 	"publisher": "deitry",
 	"description": "Provides tasks for `colcon` command-line tool",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"icon": "images/icon.png",
 	"homepage": "https://colcon.readthedocs.io",
 	"license": "MIT",
@@ -76,6 +76,10 @@
 			{
 				"command": "colcon.buildSinglePackage",
 				"title": "Colcon: Build Single Selected Package"
+			},
+			{
+				"command": "colcon.buildPackagesUpTo",
+				"title": "Colcon: Build Packages Up To Selected"
 			}
 		],
 		"configuration": [
@@ -353,5 +357,10 @@
 		"@types/dotenv": "^6.1.1",
 		"@types/glob": "^7.1.1",
 		"vscode-test": "^1.2.0"
+	},
+	"__metadata": {
+		"id": "65caa881-4cb8-4d55-8ce0-a026684ad423",
+		"publisherDisplayName": "deitry",
+		"publisherId": "a3241d89-ef12-4fd0-88ed-b41a7e7c3014"
 	}
 }
