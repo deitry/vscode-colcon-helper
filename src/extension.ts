@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { Config } from './colcon_config'
 import { refreshEnvironment } from "./environment"
-import { getBuildTaskForPackage } from './tasks';
+import { getBuildTaskForPackage, getBuildTaskForPackagesUpTo } from './tasks';
 import { extName, colcon_ns, ros2launch } from './common';
 import { PackageInfo, getAllPackages } from './packages';
 import { createColconTaskProvider } from './colcon_task_provider';

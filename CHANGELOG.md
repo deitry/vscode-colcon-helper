@@ -2,6 +2,10 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.0.1]
+
+- Merged PR by https://github.com/fpasch that adds additional `--packages-up-to` build command.
+
 ## [1.0.0]
 
 - Commands for enabling/disabling task detection for workspace folder with QuickPick for target ROS2 version.
