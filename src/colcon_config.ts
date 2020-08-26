@@ -252,7 +252,7 @@ export class Config {
         let versions: version[] = [
             { label: "Dashing Diademata", code: "dashing" },
             { label: "Eloquent Elusor", code: "eloquent" },
-            { label: "Foxy Fitzroy", code: "foxy", description: "experimental" },
+            { label: "Foxy Fitzroy", code: "foxy" },
             { label: "Configure ...", detail: "open `settings.json`" }
         ];
 
