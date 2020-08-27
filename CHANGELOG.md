@@ -2,6 +2,11 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.0.2]
+
+- Fixed passing env file when creating tasks, thanks https://github.com/richarddan
+- Remove 'experimental' label from 'foxy'
+
 ## [1.0.1]
 
 - Merged PR by https://github.com/fpasch that adds additional `--packages-up-to` build command.
