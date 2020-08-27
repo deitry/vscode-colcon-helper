@@ -77,6 +77,15 @@ let makeTask = (
     let fullCmd = executable + " " + localArgs.join(' ');
     config.log(fullCmd);
 
+    //Read ExecOptions from colcon.env
+    if (fs.existsSync(config.env)) {
+        config.log("Parse environment configuration in " + config.env);
+        colconExecOptions.env = dotenv.parse(fs.readFileSync(config.env));
+    }
+    else {
+        config.log("Environment file does not exist. Expected: " + config.env);
+    }
+
     let newTask = new vscode.Task(
         new ColconTaskDefinition(task, executable, args),
         config.currentWsFolder,
