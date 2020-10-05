@@ -19,7 +19,7 @@ Workspace level:
 - `colcon: build`
     Do exactly the same as command-line `colcon build`
 - `colcon: test`
-- `colcon: test-results`
+- `colcon: test-result`
     similarily to `build`
 - `colcon: clean` that is simple call to `rm -f build install`
 
@@ -96,11 +96,11 @@ If you open `*.launch.py` file, you'll get `colcon: launch` command which actual
 
 ### Chaining tasks
 
-By default each task is run independently. But in some cases you may want to run command in chains. You may use VS Code `tasks.json` to customize your `colcon` tasks and integrate with your other tasks. Example on how to automatically run `colcon test` before `test-results` when you run the latter:
+By default each task is run independently. But in some cases you may want to run command in chains. You may use VS Code `tasks.json` to customize your `colcon` tasks and integrate with your other tasks. Example on how to automatically run `colcon test` before `test-result` when you run the latter:
 ```json
 {
     "type": "colcon",
-    "task": "test-results",
+    "task": "test-result",
     "problemMatcher": [],
     "dependsOn": [
         {

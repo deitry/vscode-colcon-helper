@@ -154,7 +154,7 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
 
     pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
     pushIfNotUndefined(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));
-    pushIfNotUndefined(makeColconTask('test-results', [testResultCmd].concat(config.testResultArgs)));
+    pushIfNotUndefined(makeColconTask('test-result', [testResultCmd].concat(config.testResultArgs)));
     pushIfNotUndefined(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
 
     let runArgs = config.runArgs;
