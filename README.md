@@ -6,7 +6,7 @@ It provides tasks for `colcon` workspace and automatically run setup scripts in 
 
 ## How to use
 
-1. Enable tasks by running command `Colcon: Enable Tasks for current Workspace` or manually set `colcon.provideTasks` to `true`.
+1. Enable tasks by running command (Ctrl + Shift + P) `Colcon: Enable Tasks for current Workspace` or manually set `colcon.provideTasks` to `true`.
 2. If default options doesn't suit your workspace, you may configure `colcon.globalSetup` and `colcon.workspaceSetup` lists of `setup` files.
 3. Run `Colcon: Refresh Environment` command to complete environment set up for your workspace.
 4. Now open yout task list and run any task you want!
