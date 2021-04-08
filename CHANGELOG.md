@@ -2,6 +2,9 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.0.3]
+- Minor improvement in README by https://github.com/flynneva (https://github.com/deitry/vscode-colcon-helper/pull/27)
+
 ## [1.0.2]
 
 - Fixed passing env file when creating tasks, thanks https://github.com/richarddan
