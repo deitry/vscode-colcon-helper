@@ -351,14 +351,16 @@
         "@types/dotenv": "^6.1.1",
         "@types/glob": "^7.1.1",
         "@types/mocha": "^5.2.6",
-        "@types/node": "^10.12.21",
+        "@types/node": "^12.12.0",
         "@types/vscode": "^1.40.0",
-        "@typescript-eslint/eslint-plugin": "^2.24.0",
-        "@typescript-eslint/parser": "^2.24.0",
-        "eslint": "^6.8.0",
+        "@typescript-eslint/eslint-plugin": "^4.16.0",
+        "@typescript-eslint/parser": "^4.16.0",
+        "eslint": "^7.21.0",
         "glob": "^7.1.4",
-        "typescript": "^3.3.1",
-        "vscode-test": "^1.2.0"
+        "mocha": "^6.1.4",
+        "source-map-support": "^0.5.12",
+        "typescript": "^4.2.2",
+        "vscode-test": "^1.3.0"
     },
     "__metadata": {
         "id": "65caa881-4cb8-4d55-8ce0-a026684ad423",
