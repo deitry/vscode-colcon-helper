@@ -2,7 +2,27 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.1.0]
+
+- Support for running colcon on Windows.
+Please, note that currently you must use `cmd` as shell for running colcon tasks.
+
+If you want to keep your settings for integrated shell, like `pwsh`, you can use new `colcon.shell` configuration setting
+to specify which shell to use when running colcon tasks.
+
+Also you must include Visual Studio batch file in your setup to run tasks in build environment.
+For example:
+
+```json
+"colcon.workspaceSetup": [
+    "C:\\ros2\\foxy\\local_setup.bat",
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat",
+    "install/setup.bat"
+],
+```
+
 ## [1.0.3]
+
 - Minor improvement in README by https://github.com/flynneva (https://github.com/deitry/vscode-colcon-helper/pull/27)
 
 ## [1.0.2]
