@@ -30,7 +30,7 @@ export function createRos2LaunchTaskProvider() {
             let wsFolder = vscode.workspace.getWorkspaceFolder(active.document.uri);
             if (!wsFolder) return
 
-            if (active.document.uri.path && active.document.uri.path.endsWith('.launch.py')) {
+            if (active.document.uri.fsPath && active.document.uri.fsPath.endsWith('.launch.py')) {
                 let fileName = active.document.fileName;
                 if (fileName.startsWith(wsFolder.uri.fsPath)) {
                     // get path relative to wsFolder, because absolute paths somehow could not be treaten by ros2 launch

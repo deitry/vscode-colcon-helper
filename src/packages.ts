@@ -15,10 +15,19 @@ export class PackageInfo implements vscode.QuickPickItem {
 export function getAllPackages(folder: vscode.WorkspaceFolder): PackageInfo[] {
     let cmd = [colcon_exec].concat('list');
 
+    var joinedCmd = cmd.join(' ');
+    config.log("Get package list with: " + joinedCmd);
+
+    let options: cp.ExecSyncOptionsWithStringEncoding = {
+        cwd: folder.uri.fsPath,
+        shell: config.shell,
+        encoding: 'utf-8',
+        env: config.getEnvironment(),
+    };
+
     // FIXME: get rid of execSync
     let packagesRaw: string[] = cp.execSync(
-        cmd.join(' '),
-        { cwd: folder.uri.path, env: config.defaultEnvs, shell: config.shell }
+        joinedCmd, options
     ).toString().replace(RegExp('\n$'), '').split('\n');
 
     // Replace newline at end because after split it gets its own entry in resulting list
@@ -32,9 +41,15 @@ export function getAllPackages(folder: vscode.WorkspaceFolder): PackageInfo[] {
         if (packageInfoStrs.length >= 3)
             packages.push(new PackageInfo(
                 packageInfoStrs[0],
-                config.resolvePath(packageInfoStrs[1], folder.uri.path),
+                config.resolvePath(packageInfoStrs[1], folder.uri.fsPath),
                 packageInfoStrs[2]));
     });
+
+    if (packages.length == 0)
+    {
+        config.warn("No packages was discovered", { forcePopup: true });
+        config.log("colcon list output: " + packagesRaw);
+    }
 
     return packages;
 }

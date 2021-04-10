@@ -268,6 +268,33 @@
                         "scope": "resource",
                         "description": "ROS2 installation path on OSX platform.",
                         "default": "~/ros2_${version}/ros2-osx/"
+                    },
+                    "colcon.shell.windows": {
+                        "type": "string",
+                        "scope": "resource",
+                        "description": "Path to shell that is used to process colcon tasks. If empty, \"terminal.integrated.shell\" is used."
+                    },
+                    "colcon.shell.linux": {
+                        "type": "string",
+                        "scope": "resource",
+                        "description": "Path to shell that is used to process colcon tasks. If empty, \"terminal.integrated.shell\" is used."
+                    },
+                    "colcon.shell.osx": {
+                        "type": "string",
+                        "scope": "resource",
+                        "description": "Path to shell that is used to process colcon tasks. If empty, \"terminal.integrated.shell\" is used."
+                    },
+                    "colcon.shellType": {
+                        "type": "string",
+                        "enum": [
+                            "bash",
+                            "zsh",
+                            "powershell",
+                            "cmd"
+                        ],
+                        "default": "cmd",
+                        "scope": "resource",
+                        "description": "Type of shell being used for process colcon tasks."
                     }
                 }
             }

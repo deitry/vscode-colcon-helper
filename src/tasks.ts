@@ -116,7 +116,7 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
         return [];
     }
 
-    config.log("Start to aquire colcon tasks for " + wsFolder.uri.path)
+    config.log("Start to aquire colcon tasks for " + wsFolder.uri.fsPath)
 
     if (fs.existsSync(config.env)) {
         config.log("Parse environment configuration in " + config.env);
@@ -141,7 +141,7 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
             packages[wsFolder.name].forEach(pkg => {
                 if (active
                     && pkg.path != ''
-                    && active.document.uri.path.startsWith(config.resolvePath(pkg.path, wsFolder.uri.path))) {
+                    && active.document.uri.fsPath.startsWith(config.resolvePath(pkg.path, wsFolder.uri.fsPath))) {
                     // FIXME: startsWith is not the best option, but uri.path is just a string.
                     // Pkg path should be already absolute at the moment, but checking anyway.
 

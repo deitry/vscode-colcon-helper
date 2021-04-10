@@ -7,7 +7,6 @@ import * as vscode from 'vscode';
 import { extName } from './common';
 
 const delim = ' ; ';
-const sourceCmd = 'source';
 
 
 // execute standard colcon scripts and output resulting envs to file
@@ -23,7 +22,7 @@ export function refreshEnvironment() {
 
         // it is strongly recommended to check against absolute path
         if (fs.existsSync(absPath)) {
-            source = sourceCmd + ' ' + absPath + delim;
+            source = config.getSourceCmd() + ' "' + absPath + '" ' + config.getCmdDelim() + ' ';
             config.log("Source " + label + " command: " + absPath);
         }
         else {
@@ -48,13 +47,20 @@ export function refreshEnvironment() {
     }
 
     // FIXME: only colcon-related envs should be outputed
-    cmd += 'echo -e "$(env)" > ' + config.env + ' ; ';
+    cmd += config.printEnvironmentListCommand();
 
     // Executing whole command
     try {
         config.log("Trying to execute: " + cmd);
         config.log("Current shell is " + config.shell);
-        cp.execSync(cmd, { cwd: config.currentWsFolder.uri.path, env: config.defaultEnvs, shell: config.shell});
+        var output = cp.execSync(cmd,
+            {
+                cwd: config.currentWsFolder.uri.fsPath,
+                env: config.getEnvironment(),
+                shell: config.shell,
+            }).toString();
+
+        config.log(output);
 
         updatePackageList();
 

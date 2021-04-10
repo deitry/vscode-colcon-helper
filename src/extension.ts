@@ -31,7 +31,16 @@ export function updatePackageList(folder: vscode.WorkspaceFolder | undefined = u
 	}
 
 	config.log('Refresh package list...' + (cwd.name));
-	packages[cwd.name] = getAllPackages(cwd);
+	try
+	{
+		packages[cwd.name] = getAllPackages(cwd);
+	}
+	catch (e)
+	{
+		console.error('Failed to get package list');
+		return false;
+	}
+
 	config.log('Package list refreshing done');
 	// vscode.window.showInformationMessage(extName + ": List of Packages was Updated");
 	return true;
@@ -157,7 +166,7 @@ export function activate(context: vscode.ExtensionContext) {
 		pkgList.forEach(pkg => {
 			if (vscode.window.activeTextEditor
 				&& pkg.path != ''
-				&& vscode.window.activeTextEditor.document.uri.path.startsWith(pkg.path)) {
+				&& vscode.window.activeTextEditor.document.uri.fsPath.startsWith(pkg.path)) {
 
 				config.log('Going to build pkg ' + pkg.name)
 				let buildTask = getBuildTaskForPackage(pkg.name);
