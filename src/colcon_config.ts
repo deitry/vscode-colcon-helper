@@ -26,6 +26,11 @@ const rosInstallPathProperty = "rosInstallPath";
 const shellProperty = "shell";
 const shellTypeProperty = "shellType";
 
+/**
+ * Recognizable shell types
+ */
+type ShellType = 'cmd' | 'powershell' | 'bash' | 'zsh';
+
 enum OutputLevel {
     Info = 0,
     Warning = 1,
@@ -366,16 +371,18 @@ export class Config {
         }
     }
 
-    getCurrentShellType() : 'bash' | 'powershell' | 'cmd' | 'zsh' | undefined
+    getCurrentShellType() : ShellType
     {
-        let customType = this.wsConf.get(shellTypeProperty , "");
-        switch (customType)
+        let confColcon = vscode.workspace.getConfiguration(colcon_ns + "." + shellProperty);
+        let colconShell = confColcon.get(shellTypeProperty, "");
+
+        switch (colconShell)
         {
             case "powershell":
             case "cmd":
             case "bash":
             case "zsh":
-                return customType;
+                return colconShell;
         }
 
         if (this.shell.endsWith('powershell.exe') || this.shell.endsWith('pwsh.exe'))
@@ -387,7 +394,7 @@ export class Config {
         if (this.shell.endsWith('cmd.exe')) return 'cmd';
         if (this.shell.endsWith('zsh')) return 'zsh';
 
-        return undefined;
+        return 'bash';
     }
 
     // determine extension name for setup files
