@@ -4,12 +4,12 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 
 ## [1.1.1]
 
-- Instructions for Windows in `README.md`
+- Instructions for Windows in `README.md` including instructions about how to run tasks within `powershell`
 
 ## [1.1.0]
 
 - Support for running colcon on Windows.
-Please, note that currently you must use `cmd` as shell for running colcon tasks.
+~~Please, note that currently you must use `cmd` as shell for running colcon tasks.~~
 
 If you want to keep your settings for integrated shell, like `pwsh`, you can use new `colcon.shell` configuration setting
 to specify which shell to use when running colcon tasks.
