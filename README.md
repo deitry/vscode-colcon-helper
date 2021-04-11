@@ -16,7 +16,7 @@ It provides tasks for `colcon` workspace and automatically run setup scripts in 
 `colcon` tasks should be run within VisualStudio dev environment, so you have to
 add intialization script to your workspace or global setup.
 
-Also, `--symlink-install` option of `colcon build` seems currently not working without Administator rights. This option is included by default, so you have to either
+Also, `--symlink-install` option of `colcon build` on Windows may be not working without Administator rights. This option is included by default, so you have to either
 - run VS Code as Administator (which is not recommended by VS Code itself)
 - or open VS Code command promt, run `> Tasks: Configure Task` and then select `colcon: build` task in picker. Build task configuration should then appear in `tasks.json`, where you can remove `--symlink-install` argument.
 
