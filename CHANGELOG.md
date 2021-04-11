@@ -2,6 +2,10 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.1.1]
+
+- Instructions for Windows in `README.md`
+
 ## [1.1.0]
 
 - Support for running colcon on Windows.

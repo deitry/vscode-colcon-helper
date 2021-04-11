@@ -3,7 +3,7 @@
     "displayName": "Colcon Tasks",
     "publisher": "deitry",
     "description": "Provides tasks for `colcon` command-line tool",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "icon": "images/icon.png",
     "homepage": "https://colcon.readthedocs.io",
     "license": "MIT",
