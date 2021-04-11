@@ -11,6 +11,43 @@ It provides tasks for `colcon` workspace and automatically run setup scripts in 
 3. Run `Colcon: Refresh Environment` command to complete environment set up for your workspace.
 4. Now open yout task list and run any task you want!
 
+## How to use on Windows
+
+`colcon` tasks should be run within VisualStudio dev environment, so you have to
+add intialization script to your workspace or global setup.
+
+Also, `--symlink-install` option of `colcon build` seems currently not working without Administator rights. This option is included by default, so you have to either
+- run VS Code as Administator (which is not recommended by VS Code itself)
+- or open VS Code command promt, run `> Tasks: Configure Task` and then select `colcon: build` task in picker. Build task configuration should then appear in `tasks.json`, where you can remove `--symlink-install` argument.
+
+### `cmd`
+
+Add VisualStudio's `vcvars*.bat` script to your workspace setup. E.g.:
+```json
+"colcon.workspaceSetup": [
+    "C:\\ros2\\foxy\\local_setup.bat",
+
+    // this one:
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat",
+
+    "install/setup.bat"
+],
+```
+
+### `powershell`
+
+1. Create `vcvars.ps1` script with content listed below. Please note that you may have to change paths to actual ones.
+```powershell
+# https://developercommunity.visualstudio.com/t/powershell-version-of-vcvarsallbat/362377#T-N1029643
+
+Import-Module "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+
+Enter-VsDevShell `
+    -VsInstallPath "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\" `
+    -StartInPath .
+```
+2. Add path to it to your `colcon.workspaceSetup`
+
 ### Available tasks
 
 Tasks provided at the moment:
