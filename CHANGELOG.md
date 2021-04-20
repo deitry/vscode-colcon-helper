@@ -5,7 +5,7 @@ All notable changes to the "colcon-helper" extension will be documented in this 
 ## [1.2.0]
 
 - `task` property is no more needed for task definitions in `tasks.json`
-- Drop support of `colcon.*Args` configuration options
+- Drop support of `colcon.*Args` configuration options.
 Arguments specification in `tasks.json` is the only supported way since now.
 - "Build packages up to current" command
 - Hide "build current" commands if active editor is outside of known packages
