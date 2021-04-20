@@ -89,6 +89,7 @@ export class Config {
      * Configuration for current document
      */
     resConf: vscode.WorkspaceConfiguration;
+    shellType: ShellType | null;
 
     constructor(wsFolder: vscode.WorkspaceFolder | undefined = undefined) {
 
@@ -106,6 +107,8 @@ export class Config {
             throw new Error("Missed colcon configuration");
 
         this.shell = this.getCurrentShell();
+        this.shellType = this.getCurrentShellType();
+
         this.provideTasks = this.resConf.get(provideTasksProperty, false);
         this.debugLog = this.wsConf.get(debugLogProperty, false);
 
@@ -331,29 +334,24 @@ export class Config {
      */
     getCurrentShell() : string {
         // get integratedTerminal shell setting
-        let confColcon = vscode.workspace.getConfiguration(colcon_ns + "." + shellProperty);
+        let confColcon = vscode.workspace.getConfiguration(colcon_ns + "." + shellProperty, null);
         let platform = this.getCurrentPlatform();
 
         let colconShell = confColcon.get(platform, "");
         if (colconShell)
             return colconShell;
 
-        let confGlobal = vscode.workspace.getConfiguration("terminal.integrated.shell");
+        let confGlobal = vscode.workspace.getConfiguration("terminal.integrated.shell", null);
 
-        switch (platform)
-        {
-            case 'windows':
-                return confGlobal.get(platform, 'C:\\Windows\\System32\\cmd.exe');
-            case 'linux':
-            case 'osx':
-            default:
-                return confGlobal.get(platform, '/usr/bin/bash');
-        }
+        const defaultShell = require('default-shell');
+        colconShell = confGlobal.get(platform, defaultShell);
+
+        return colconShell ?? defaultShell;
     }
 
-    getCurrentShellType() : ShellType
+    getCurrentShellType() : ShellType | null
     {
-        let confColcon = vscode.workspace.getConfiguration(colcon_ns + "." + shellProperty);
+        let confColcon = vscode.workspace.getConfiguration(colcon_ns + "." + shellProperty, this.currentWsFolder?.uri);
         let colconShell = confColcon.get(shellTypeProperty, "");
 
         switch (colconShell)
@@ -363,6 +361,12 @@ export class Config {
             case "bash":
             case "zsh":
                 return colconShell;
+        }
+
+        if (!this.shell) {
+            let platform = this.getCurrentPlatform();
+            this.error(`Either \`colcon.shell.${platform}\` or \`terminal.integrated.${platform}\` must be specified.`)
+            return null;
         }
 
         if (this.shell.endsWith('powershell.exe') || this.shell.endsWith('pwsh.exe'))
@@ -379,7 +383,7 @@ export class Config {
 
     // determine extension name for setup files
     determineShellExtension() : string {
-        switch (this.getCurrentShellType())
+        switch (this.shellType)
         {
             case 'powershell':
                 return 'ps1';
@@ -414,8 +418,7 @@ export class Config {
 
     printEnvironmentListCommand() : string
     {
-        let shellType = this.getCurrentShellType();
-        switch (shellType)
+        switch (this.shellType)
         {
             case 'cmd':
                 return 'set > ' + this.env;
@@ -444,7 +447,7 @@ Foreach ($entry in $envs)
     }
 
     getSourceCmd() : string {
-        switch (this.getCurrentShellType())
+        switch (this.shellType)
         {
             case 'powershell':
                 return "."
@@ -462,7 +465,7 @@ Foreach ($entry in $envs)
      * @returns Shell specific delimiter between commands
      */
     getCmdDelim() {
-        switch (this.getCurrentShellType())
+        switch (this.shellType)
         {
             case 'cmd': return '&';
             default: return ';';

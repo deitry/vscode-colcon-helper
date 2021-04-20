@@ -3,7 +3,7 @@
     "displayName": "Colcon Tasks",
     "publisher": "deitry",
     "description": "Provides tasks for `colcon` command-line tool",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "icon": "images/icon.png",
     "homepage": "https://colcon.readthedocs.io",
     "license": "MIT",
@@ -299,6 +299,7 @@
         "test": "node ./out/test/runTest.js"
     },
     "dependencies": {
+        "default-shell": "^1.0.1",
         "dotenv": "^8.0.0"
     },
     "devDependencies": {

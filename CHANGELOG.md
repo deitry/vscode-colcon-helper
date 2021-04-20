@@ -2,6 +2,10 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.2.1]
+
+- Better handling if no shell configuration is set
+
 ## [1.2.0]
 
 - `task` property is no more needed for task definitions in `tasks.json`
