@@ -7,29 +7,21 @@ import { getColconTasks } from './tasks';
 
 export class ColconTaskDefinition {
     type: string = colcon_ns;
-    task: string;
     name: string;
 
-    command?: string;
-    args?: string[];
+    /** command to run */
+    command: string;
 
-    constructor(task: string, command?: string, args?: string[]) {
-        this.name = task;
-        this.task = task;
+    /** arguments */
+    args: string[];
+
+    constructor(taskName: string, command: string, args: string[]) {
+        this.name = taskName;
         this.args = args;
+        this.command = command;
 
-        if (command && command != colcon_exec) {
-            this.command = command;
-        } else if (this.task == "clean") {
-            this.command = "rm";
-        }
-
-        if (args) {
-            this.args = args;
-        } else if (this.task == "build" || this.task == "test" || this.task == "test-result") {
-            this.args = [this.task];
-        } else if (this.task == "clean") {
-            this.args = ["-r", "--verbose", "build", "install"];
+        if (!args) {
+            config.error(`args must be specified for task \`${taskName}\``)
         }
     }
 }
@@ -69,12 +61,12 @@ export function createColconTaskProvider() {
 
                 return new vscode.Task(
                     definition,
-                    _task.scope ? _task.scope : vscode.TaskScope.Workspace,
-                    definition.task,
+                    _task.scope ?? vscode.TaskScope.Workspace,
+                    definition.name ?? _task.name,
                     definition.type,
                     new vscode.ProcessExecution(
-                        definition.command ? definition.command : colcon_exec,
-                        definition.args ? definition.args : [],
+                        definition.command ?? colcon_exec,
+                        definition.args ?? [],
                         execOptions),
                     []
                 );

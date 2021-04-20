@@ -73,16 +73,7 @@ export class Config {
     debugLog: boolean;
     outputLevel: OutputLevel;
 
-    buildArgs: string[];
-    testArgs: string[];
-    testResultArgs: string[];
     defaultEnvs?: NodeJS.ProcessEnv;
-    cleanCommand: string;
-    cleanArgs: string[];
-    runCommand: string;
-    runArgs: string[];
-    runFile: string;
-    runFileArgs: string[];
 
     /**
      * Path to shell processor
@@ -166,17 +157,6 @@ export class Config {
         this.refreshOnTasksOpened = this.wsConf.get(refreshOnTasksOpenedProperty, false);
         this.refreshOnConfigurationChanged = this.wsConf.get(refreshOnConfigurationChangedProperty, false);
 
-        this.buildArgs = this.resConf.get(buildArgsProperty, []);
-        this.testArgs = this.resConf.get(testArgsProperty, []);
-        this.testResultArgs = this.resConf.get(testResultArgsProperty, []);
-        this.cleanCommand = this.resConf.get(cleanCommandProperty, "");
-        this.cleanArgs = this.resConf.get(cleanArgsProperty, []);
-        this.cleanCommand = this.resConf.get(cleanCommandProperty, "");
-        this.cleanArgs = this.resConf.get(cleanArgsProperty, []);
-        this.runCommand = this.resConf.get(runCommandProperty, "");
-        this.runArgs = this.resConf.get(runArgsProperty, []);
-        this.runFile = this.resConf.get(runFileProperty, "");
-        this.runFileArgs = this.resConf.get(runFileArgsProperty, []);
         let envs = this.resConf.get(defaultEnvsProperty, {});
         if (Object.keys(envs).length > 0)
         {

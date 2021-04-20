@@ -36,14 +36,6 @@ export function createRos2LaunchTaskProvider() {
                     // get path relative to wsFolder, because absolute paths somehow could not be treaten by ros2 launch
                     let basename = '.' + fileName.substr(wsFolder.uri.fsPath.length);
                     let args = ['launch'];
-                    let hasDebug = false;
-
-                    config.runArgs.forEach(element => {
-                        if (element.includes('--debug')) hasDebug = true;
-                    });
-
-                    if (hasDebug) args = args.concat('--debug');
-                    args = args.concat(basename).concat(config.runFileArgs);
 
                     let execOptions: vscode.ProcessExecutionOptions = {};
                     execOptions.env = dotenv.parse(fs.readFileSync(config.env));

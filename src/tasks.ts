@@ -21,57 +21,37 @@ export const taskPresentation: vscode.TaskPresentationOptions = {
 };
 
 export function getBuildTaskForPackage(packageName: string | string[]): vscode.Task | undefined {
-    let packagesSelected = false;
 
-    config.buildArgs.forEach(element => {
-        if (element.includes('--packages-select')) packagesSelected = true;
-    });
+    let descriptor = typeof (packageName) == 'string'
+        ? `'${packageName}'`
+        : 'selected';
 
-    if (packagesSelected) {
-        // FIXME: in case of build-current we must not just concat packages-select, but replace if it is already exist
-        config.error('Cannot add build task for current package, because there is already `--packages-select` option.');
-    } else {
-
-        let descriptor = typeof (packageName) == 'string' ? `'${packageName}'` : 'selected';
-
-        return makeColconTask(
-            `build ${descriptor}`,
-            [buildCmd].concat(config.buildArgs).concat('--packages-select').concat(packageName),
-            vscode.TaskGroup.Build);
-    }
-    return undefined;
+    return makeColconTask(
+        `build ${descriptor}`,
+        [buildCmd, '--symlink-install'].concat('--packages-select').concat(packageName),
+        vscode.TaskGroup.Build);
 }
 
 export function getBuildTaskForPackagesUpTo(packageName: string | string[]): vscode.Task | undefined {
-    let packagesSelected = false;
 
-    config.buildArgs.forEach(element => {
-        if (element.includes('--packages-up-to')) packagesSelected = true;
-    });
+    let descriptor = typeof (packageName) == 'string'
+        ? `'${packageName}'`
+        : 'selected';
 
-    if (packagesSelected) {
-        // FIXME: in case of build-current we must not just concat packages-up-to, but replace if it is already exist
-        config.error('Cannot add build task for current package, because there is already `--packages-up-to` option.');
-    } else {
-
-        let descriptor = typeof (packageName) == 'string' ? `'${packageName}'` : 'selected';
-
-        return makeColconTask(
-            `build ${descriptor}`,
-            [buildCmd].concat(config.buildArgs).concat('--packages-up-to').concat(packageName),
-            vscode.TaskGroup.Build);
-    }
-    return undefined;
+    return makeColconTask(
+        `build ${descriptor}`,
+        [buildCmd, '--symlink-install', '--packages-up-to'].concat(packageName),
+        vscode.TaskGroup.Build);
 }
 
 // 'Build' single colcon command
 let makeTask = (
     executable: string,
-    task: string,
+    taskName: string,
     args: string[],
     group: vscode.TaskGroup | undefined = undefined
 ) => {
-    config.log("Making task: " + task);
+    config.log("Making task: " + taskName);
 
     let localArgs = args;
     let fullCmd = executable + " " + localArgs.join(' ');
@@ -87,9 +67,9 @@ let makeTask = (
     }
 
     let newTask = new vscode.Task(
-        new ColconTaskDefinition(task, executable, args),
+        new ColconTaskDefinition(taskName, executable, args),
         config.currentWsFolder,
-        task,
+        taskName,
         colcon_ns,
         new vscode.ProcessExecution(executable, args, colconExecOptions),
         [] // TODO: problemMatcher
@@ -101,11 +81,11 @@ let makeTask = (
 }
 
 let makeColconTask = (
-    task: string,
+    taskName: string,
     args: string[],
     group: vscode.TaskGroup | undefined = undefined
 ) => {
-    return makeTask(colcon_exec, task, args, group);
+    return makeTask(colcon_exec, taskName, args, group);
 }
 
 // Get all possible colcon tasks
@@ -152,17 +132,14 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
         }
     }
 
-    pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.buildArgs), vscode.TaskGroup.Build));
-    pushIfNotUndefined(makeColconTask('test', [testCmd].concat(config.testArgs), vscode.TaskGroup.Test));
-    pushIfNotUndefined(makeColconTask('test-result', [testResultCmd].concat(config.testResultArgs)));
-    pushIfNotUndefined(makeTask(config.cleanCommand, 'clean', config.cleanArgs, vscode.TaskGroup.Clean));
+    pushIfNotUndefined(makeColconTask('build', [buildCmd, '--symlink-install'], vscode.TaskGroup.Build));
+    pushIfNotUndefined(makeColconTask('test', [testCmd], vscode.TaskGroup.Test));
+    pushIfNotUndefined(makeColconTask('test-result', [testResultCmd, '--verbose']));
 
-    let runArgs = config.runArgs;
-    //  NOTE: if "" passed as runFile then it may be considered as invalid arg when executed
-    if (config.runFile != "") { runArgs = runArgs.concat(config.runFile); }
-    else { config.warn("Run file is undefined"); }
-    runArgs = runArgs.concat(config.runFileArgs);
-    pushIfNotUndefined(makeTask(config.runCommand, 'run', runArgs));
+    // it seems Clean group is not available actually and raises warning in tasks.json
+    pushIfNotUndefined(makeTask('rm', 'clean', ['-r', '--verbose', 'build', 'install']/* , vscode.TaskGroup.Clean */));
+
+    pushIfNotUndefined(makeTask('ros2', 'run', []));
 
     config.log("Complete aquire colcon tasks")
     return taskList;

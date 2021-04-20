@@ -172,85 +172,6 @@
                         ],
                         "description": "Select output level."
                     },
-                    "colcon.buildArgs": {
-                        "type": "array",
-                        "items": "string",
-                        "default": [
-                            "--symlink-install"
-                        ],
-                        "scope": "resource",
-                        "description": "Arguments that are passed to colcon build command.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.testArgs": {
-                        "type": "array",
-                        "items": "string",
-                        "default": [],
-                        "scope": "resource",
-                        "description": "Arguments that are passed to colcon test command.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.testResultArgs": {
-                        "type": "array",
-                        "items": "string",
-                        "default": [
-                            "--verbose"
-                        ],
-                        "scope": "resource",
-                        "description": "Arguments that are passed to colcon test-result command.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.cleanCommand": {
-                        "type": "string",
-                        "default": "rm",
-                        "scope": "resource",
-                        "description": "Command that is used to clean workspace.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.cleanArgs": {
-                        "type": "array",
-                        "items": "string",
-                        "default": [
-                            "-r",
-                            "--verbose",
-                            "build",
-                            "install"
-                        ],
-                        "scope": "resource",
-                        "description": "Arguments that are passed to clean command.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.runCommand": {
-                        "type": "string",
-                        "default": "ros2",
-                        "scope": "resource",
-                        "description": "Command that is used to launch project.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.runArgs": {
-                        "type": "array",
-                        "items": "string",
-                        "default": [
-                            "launch"
-                        ],
-                        "scope": "resource",
-                        "description": "Arguments that are passed to run command.",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.runFile": {
-                        "type": "string",
-                        "scope": "resource",
-                        "description": "File that is launched by run command (passed after `runArgs`)",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
-                    "colcon.runFileArgs": {
-                        "type": "array",
-                        "items": "string",
-                        "default": [],
-                        "scope": "resource",
-                        "description": "Arguments that are passed to file in run command (passed after `runFile`).",
-                        "deprecationMessage": "Deprecated in favor of User/Workspace/Folder tasks.json"
-                    },
                     "colcon.rosInstallPath.windows": {
                         "type": "string",
                         "scope": "resource",
@@ -302,28 +223,19 @@
         "taskDefinitions": [
             {
                 "type": "colcon",
-                "required": [
-                    "task"
-                ],
                 "properties": {
-                    "task": {
-                        "type": "string",
-                        "enum": [
-                            "build",
-                            "test",
-                            "test-result",
-                            "custom",
-                            "clean"
-                        ],
-                        "description": "Subcommand for colcon"
-                    },
                     "command": {
                         "type": "string",
-                        "description": "Command for custom command execution"
+                        "default": "colcon",
+                        "description": "The command to be executed. Can be an external program or a shell command. For colcon tasks default is `colcon`."
                     },
                     "args": {
                         "type": "array",
-                        "description": "additionalArgs"
+                        "items": {
+                            "type": "string",
+                            "title": "Command line arguments"
+                        },
+                        "description": "Arguments passed to the command when this task is invoked."
                     }
                 }
             },
@@ -336,14 +248,14 @@
                     "commmand": {
                         "type": "string",
                         "default": "ros2",
-                        "description": "Launch command"
+                        "description": "The command to be executed. Can be an external program or a shell command. For ros2 tasks default is `ros2`."
                     },
                     "launchArgs": {
                         "type": "array",
                         "default": [
                             "launch"
                         ],
-                        "description": "Arguments that are passed to launch command"
+                        "description": "Arguments passed to the command when this task is invoked."
                     },
                     "rosPackage": {
                         "type": "string",
