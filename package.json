@@ -51,35 +51,48 @@
         "commands": [
             {
                 "command": "colcon.enableTasks",
-                "title": "Colcon: Enable Tasks for Current Workspace"
+                "title": "Enable Tasks for Current Workspace",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.disableTasks",
-                "title": "Colcon: Disable Tasks for Current Workspace"
+                "title": "Disable Tasks for Current Workspace",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.refreshEnvironment",
-                "title": "Colcon: Refresh Environment"
+                "title": "Refresh Environment",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.refreshPackageList",
-                "title": "Colcon: Refresh Package List"
+                "title": "Refresh Package List",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.buildCurrentPackage",
-                "title": "Colcon: Build Current Package"
+                "title": "Build Current Package",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.buildSelectedPackages",
-                "title": "Colcon: Build Selected Packages"
+                "title": "Build Selected Packages",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.buildSinglePackage",
-                "title": "Colcon: Build Single Selected Package"
+                "title": "Build Single Selected Package",
+                "category": "Colcon"
             },
             {
                 "command": "colcon.buildPackagesUpTo",
-                "title": "Colcon: Build Packages Up To Selected"
+                "title": "Build Packages Up To Selected",
+                "category": "Colcon"
+            },
+            {
+                "command": "colcon.buildPackagesUpToCurrent",
+                "title": "Build Packages Up To Current",
+                "category": "Colcon"
             }
         ],
         "configuration": [

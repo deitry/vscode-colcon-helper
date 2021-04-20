@@ -15,6 +15,7 @@ const refreshPackageList = 'refreshPackageList';
 const buildCurrentPkgCmdName = 'buildCurrentPackage';
 const buildSinglePkgCmdName = 'buildSinglePackage';
 const buildPkgsUpToCmdName = 'buildPackagesUpTo';
+const buildPkgsUpToCurrentCmdName = 'buildPackagesUpToCurrent';
 const buildPkgCmdName = 'buildSelectedPackages';
 
 export let packages: { [id: string]: PackageInfo[]; } = {};
@@ -31,12 +32,10 @@ export function updatePackageList(folder: vscode.WorkspaceFolder | undefined = u
 	}
 
 	config.log('Refresh package list...' + (cwd.name));
-	try
-	{
+	try {
 		packages[cwd.name] = getAllPackages(cwd);
 	}
-	catch (e)
-	{
+	catch (e) {
 		console.error('Failed to get package list');
 		return false;
 	}
@@ -229,6 +228,33 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	let buildPackagesUpToCurrentCmd = vscode.commands.registerCommand(colcon_ns + "." + buildPkgsUpToCurrentCmdName, async () => {
+		let folder = getCurrentWsFolder();
+		if (!folder) {
+			config.error('No active workspaceFolder! Cannot build.');
+			return;
+		}
+
+		actualizeConfig(folder);
+		let pkgList = packages[folder.name];
+
+		if (!pkgList || pkgList.length == 0) {
+			config.error('Did not find packages for current workspace folder');
+			return;
+		}
+
+		pkgList.forEach(pkg => {
+			if (vscode.window.activeTextEditor
+				&& pkg.path != ''
+				&& vscode.window.activeTextEditor.document.uri.fsPath.startsWith(pkg.path)) {
+
+				config.log('Going to build pkg ' + pkg.name)
+				let buildTask = getBuildTaskForPackagesUpTo(pkg.name);
+				if (buildTask) vscode.tasks.executeTask(buildTask);
+			}
+		});
+	});
+
 	context.subscriptions.push(onEnableCmd);
 	context.subscriptions.push(onDisableCmd);
 	context.subscriptions.push(onRefreshCmd);
@@ -237,6 +263,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(buildPackageCmd);
 	context.subscriptions.push(buildSinglePackageCmd);
 	context.subscriptions.push(buildPackagesUpToCmd);
+	context.subscriptions.push(buildPackagesUpToCurrentCmd);
 	context.subscriptions.push(onChangeActiveTextEditor);
 
 	context.subscriptions.push(vscode.tasks.registerTaskProvider(colcon_ns, createColconTaskProvider()));

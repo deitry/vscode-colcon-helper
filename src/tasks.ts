@@ -28,7 +28,7 @@ export function getBuildTaskForPackage(packageName: string | string[]): vscode.T
 
     return makeColconTask(
         `build ${descriptor}`,
-        [buildCmd, '--symlink-install'].concat('--packages-select').concat(packageName),
+        [buildCmd, '--symlink-install', '--packages-select'].concat(packageName),
         vscode.TaskGroup.Build);
 }
 
