@@ -72,6 +72,13 @@
             {
                 "command": "colcon.buildCurrentPackage",
                 "title": "Build Current Package",
+                "enablement": "colcon.hasCurrentPackage",
+                "category": "Colcon"
+            },
+            {
+                "command": "colcon.buildPackagesUpToCurrent",
+                "title": "Build Packages Up To Current",
+                "enablement": "colcon.hasCurrentPackage",
                 "category": "Colcon"
             },
             {
@@ -87,11 +94,6 @@
             {
                 "command": "colcon.buildPackagesUpTo",
                 "title": "Build Packages Up To Selected",
-                "category": "Colcon"
-            },
-            {
-                "command": "colcon.buildPackagesUpToCurrent",
-                "title": "Build Packages Up To Current",
                 "category": "Colcon"
             }
         ],

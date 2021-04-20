@@ -18,6 +18,7 @@ const buildPkgsUpToCmdName = 'buildPackagesUpTo';
 const buildPkgsUpToCurrentCmdName = 'buildPackagesUpToCurrent';
 const buildPkgCmdName = 'buildSelectedPackages';
 
+/** Key is workspace name */
 export let packages: { [id: string]: PackageInfo[]; } = {};
 export let config: Config;
 
@@ -102,6 +103,17 @@ export function activate(context: vscode.ExtensionContext) {
 			if (wsFolder && !(wsFolder.name in packages)) {
 				updatePackageList(wsFolder);
 			}
+
+			if (wsFolder && wsFolder.name in packages) {
+				let isInPackage: boolean = packages[wsFolder.name]
+					.find(p => vscode.window.activeTextEditor?.document.uri.fsPath.startsWith(p.path))
+					? true : false;
+
+				vscode.commands.executeCommand('setContext', colcon_ns + '.hasCurrentPackage', isInPackage);
+			}
+		}
+		else {
+			vscode.commands.executeCommand('setContext', colcon_ns + '.hasCurrentPackage', false);
 		}
 	});
 
