@@ -23,7 +23,7 @@ Also, `--symlink-install` option of `colcon build` on Windows may be not working
 ### `cmd`
 
 Add VisualStudio's `vcvars*.bat` script to your workspace setup. E.g.:
-```json
+```jsonc
 "colcon.workspaceSetup": [
     "C:\\ros2\\foxy\\local_setup.bat",
 
@@ -157,3 +157,5 @@ Extension is in slow development and there may be divergencies between this file
 Contact me at:
 - https://github.com/deitry/vscode-colcon-helper/issues
 - dm.s.vornychev@gmail.com
+
+<a href="https://www.buymeacoffee.com/deitry" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" width="100"></a>
