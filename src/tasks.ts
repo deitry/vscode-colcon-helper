@@ -85,7 +85,11 @@ let makeColconTask = (
     args: string[],
     group: vscode.TaskGroup | undefined = undefined
 ) => {
-    return makeTask(config.colconExe, taskName, args, group);
+    let newTask = makeTask(config.colconExe, taskName, args, group);
+    if (group === vscode.TaskGroup.Build) {
+      newTask.problemMatchers = ['$colcon-helper-gcc'];
+    }
+    return newTask;
 }
 
 // Get all possible colcon tasks
