@@ -65,7 +65,7 @@ export function createColconTaskProvider() {
                     definition.name ?? _task.name,
                     definition.type,
                     new vscode.ProcessExecution(
-                        definition.command ?? colcon_exec,
+                        definition.command ?? config.colconExe,
                         definition.args ?? [],
                         execOptions),
                     []

@@ -231,6 +231,23 @@
                         "default": "cmd",
                         "scope": "resource",
                         "description": "Type of shell being used for process colcon tasks."
+                    },
+                    "colcon.colconExe": {
+                        "type": "string",
+                        "default": "colcon",
+                        "scope": "resource",
+                        "description": "Path to colcon executable."
+                    },
+                    "colcon.installType": {
+                        "type": "string",
+                        "enum": [
+                            "isolated",
+                            "symlinked",
+                            "merged"
+                        ],
+                        "default": "isolated",
+                        "scope": "resource",
+                        "description": "Type of installation to perform."
                     }
                 }
             }

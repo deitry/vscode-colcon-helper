@@ -13,7 +13,7 @@ export class PackageInfo implements vscode.QuickPickItem {
 }
 
 export function getAllPackages(folder: vscode.WorkspaceFolder): PackageInfo[] {
-    let cmd = [colcon_exec].concat('list');
+    let cmd = [config.colconExe].concat('list');
 
     var joinedCmd = cmd.join(' ');
     config.log("Get package list with: " + joinedCmd);

@@ -28,7 +28,7 @@ export function getBuildTaskForPackage(packageName: string | string[]): vscode.T
 
     return makeColconTask(
         `build ${descriptor}`,
-        [buildCmd, '--symlink-install', '--packages-select'].concat(packageName),
+        [buildCmd].concat(config.installTypeArgs).concat('--packages-select', packageName),
         vscode.TaskGroup.Build);
 }
 
@@ -40,7 +40,7 @@ export function getBuildTaskForPackagesUpTo(packageName: string | string[]): vsc
 
     return makeColconTask(
         `build ${descriptor}`,
-        [buildCmd, '--symlink-install', '--packages-up-to'].concat(packageName),
+        [buildCmd].concat(config.installTypeArgs).concat('--packages-up-to', packageName),
         vscode.TaskGroup.Build);
 }
 
@@ -85,7 +85,7 @@ let makeColconTask = (
     args: string[],
     group: vscode.TaskGroup | undefined = undefined
 ) => {
-    return makeTask(colcon_exec, taskName, args, group);
+    return makeTask(config.colconExe, taskName, args, group);
 }
 
 // Get all possible colcon tasks
@@ -132,7 +132,7 @@ export function getColconTasks(wsFolder: vscode.WorkspaceFolder) {
         }
     }
 
-    pushIfNotUndefined(makeColconTask('build', [buildCmd, '--symlink-install'], vscode.TaskGroup.Build));
+    pushIfNotUndefined(makeColconTask('build', [buildCmd].concat(config.installTypeArgs), vscode.TaskGroup.Build));
     pushIfNotUndefined(makeColconTask('test', [testCmd], vscode.TaskGroup.Test));
     pushIfNotUndefined(makeColconTask('test-result', [testResultCmd, '--verbose']));
 

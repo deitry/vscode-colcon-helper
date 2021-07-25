@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { colcon_ns, extName } from './common';
+import { colcon_exec, colcon_ns, def_install_type, extName } from './common';
 
 const envProperty = "env";
 const globalSetupProperty = "globalSetup";
@@ -25,11 +25,18 @@ const defaultEnvsProperty = "defaultEnvironment";
 const rosInstallPathProperty = "rosInstallPath";
 const shellProperty = "shell";
 const shellTypeProperty = "shellType";
+const colconExeProperty = "colconExe";
+const installTypeProperty = "installType";
 
 /**
  * Recognizable shell types
  */
 type ShellType = 'cmd' | 'powershell' | 'bash' | 'zsh';
+
+/**
+ * Recognizable installation types
+ */
+type InstallType = 'isolated' | 'symlinked' | 'merged';
 
 enum OutputLevel {
     Info = 0,
@@ -63,6 +70,9 @@ export class Config {
     globalSetup: string[] = [];
     workspaceSetup: string[] = [];
     colconCwd: string;
+    colconExe: string;
+    installType: string;
+    installTypeArgs: string[] = [];
     currentWsFolder: vscode.WorkspaceFolder;
 
     refreshOnStart: boolean;
@@ -165,6 +175,21 @@ export class Config {
         {
             // leave undefined if there is no envs defined
             this.defaultEnvs = envs;
+        }
+
+        this.colconExe = this.resolvePath(this.resConf.get(colconExeProperty, colcon_exec));
+        this.installType = this.resConf.get(installTypeProperty, def_install_type);
+        switch (this.installType)
+        {
+            case "symlinked":
+                this.installTypeArgs.push('--symlink-install');
+                break;
+            case "merged":
+                this.installTypeArgs.push('--merge-install');
+                break;
+            default:
+                // isolated install is the default case
+                break;
         }
     }
 
