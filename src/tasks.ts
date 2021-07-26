@@ -87,7 +87,11 @@ let makeColconTask = (
 ) => {
     let newTask = makeTask(config.colconExe, taskName, args, group);
     if (group === vscode.TaskGroup.Build) {
-      newTask.problemMatchers = ['$colcon-helper-gcc'];
+      newTask.problemMatchers = [
+          '$colcon-helper-gcc',
+          '$colcon-helper-msbuild',
+          '$colcon-helper-msbuild-info',
+      ];
     }
     return newTask;
 }
