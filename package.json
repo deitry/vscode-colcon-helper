@@ -245,9 +245,14 @@
                             "symlinked",
                             "merged"
                         ],
+                        "enumDescriptions": [
+                            "No extra options to colcon - default behavior",
+                            "Adds --symlink-install option to contributed build tasks",
+                            "Adds --merge-install option to contributed build tasks"
+                        ],
                         "default": "isolated",
                         "scope": "resource",
-                        "description": "Type of installation to perform."
+                        "description": "Type of installation to perform. Could be overridden in tasks.json for specific task."
                     }
                 }
             }
