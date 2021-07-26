@@ -231,7 +231,44 @@
                         "default": "cmd",
                         "scope": "resource",
                         "description": "Type of shell being used for process colcon tasks."
+                    },
+                    "colcon.colconExe": {
+                        "type": "string",
+                        "default": "colcon",
+                        "scope": "resource",
+                        "description": "Path to colcon executable."
+                    },
+                    "colcon.installType": {
+                        "type": "string",
+                        "enum": [
+                            "isolated",
+                            "symlinked",
+                            "merged"
+                        ],
+                        "enumDescriptions": [
+                            "No extra options to colcon - default behavior",
+                            "Adds --symlink-install option to contributed build tasks",
+                            "Adds --merge-install option to contributed build tasks"
+                        ],
+                        "default": "isolated",
+                        "scope": "resource",
+                        "description": "Type of installation to perform. Could be overridden in tasks.json for specific task."
                     }
+                }
+            }
+        ],
+        "problemMatchers": [
+            {
+                "name": "colcon-helper-gcc",
+                "fileLocation": "absolute",
+                "owner": "colcon",
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
                 }
             }
         ],
