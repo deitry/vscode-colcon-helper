@@ -2,6 +2,15 @@
 
 All notable changes to the "colcon-helper" extension will be documented in this file.
 
+## [1.3.0]
+
+- New configuration options:
+  - `colcon.colconExe` - path to `colcon` executable
+  - `colcon.installType` - option to choose default install behavior for contributed build tasks (previously was always `symlinked` which is equal to `colcon build --symlink-install`)
+- Problem matcher for C++ (GCC/MSBuild)
+
+Thanks https://github.com/Felix-El
+
 ## [1.2.1]
 
 - Better handling if no shell configuration is set
